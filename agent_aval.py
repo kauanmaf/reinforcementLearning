@@ -7,6 +7,9 @@ import random
 from groq import Groq
 import subprocess
 from policy import EpsilonGreedyPolicy
+from instructor import Instructor
+from dotenv import load_dotenv
+import os
 
 class ReviewAction(Enum):
     STATIC_ANALYSIS = "static_analysis"
@@ -23,11 +26,11 @@ class CodeReviewResult:
     suggestions: List[str]
 
 class CodeReviewer:
-    def __init__(self, api_key: str, model: str = "llama3-8b-8192"):
+    def __init__(self, client: str, model: str = "llama3-8b-8192"):
         """
         Inicializamos o Code reviewer com o groq
         """
-        self.groq_client = Groq(api_key=api_key)
+        self.groq_client = client
         self.model = model
         self.feedback_history = [{
                     "role": "system",
@@ -39,6 +42,8 @@ class CodeReviewer:
         self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
         self.current_state = (0, 0)
         self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
+        self.instructor = Instructor(client=self.groq_client, create=self.groq_client.chat.completions.create)
+
 
     def _get_llm_response(self, prompt: str) -> str:
         """
@@ -62,6 +67,7 @@ class CodeReviewer:
                 "role": "assistant",
                 "content": completion.choices[0].message.content
             })
+            print(completion.choices[0].message.content)
             
             return completion.choices[0].message.content
         except Exception as e:
@@ -74,9 +80,37 @@ class CodeReviewer:
         # Rodar mypy para verificar tipagem estática
         self.mypy_metrics = self.run_mypy_analysis(info["code"])
     
-    def review_code(self, info: Dict[str, Any]) -> CodeReviewResult:
+    def review_code(self, info: Dict[str, Any]):
+        """
+        Perform a structured code review using Groq with feedback in 10 numbered metrics.
+        """
+        code = info.get("code", "")
         
-        return result
+            
+        # Manually create the structured prompt for Groq
+        prompt = f"""Please review the following code based on these 10 metrics, providing feedback for each:
+        
+1. Functional correctness
+2. Code readability and style
+3. Documentation quality and clarity
+4. Efficiency and performance optimization
+5. Error handling and robustness
+6. Code organization and modularity
+7. Typing and static analysis
+8. Security practices
+9. Test coverage and quality
+10. Suggested improvements and best practices
+
+### Code:
+```python
+{code}
+```
+"""
+
+        # Obtain structured feedback from Groq
+        structured_feedback = self._get_llm_response(prompt)
+
+        return structured_feedback
 
     def create_report(self, info):
         """
@@ -104,8 +138,6 @@ class CodeReviewer:
 
         # Armazenar o relatório
         self.report = {
-            "ruff_metrics": ruff_metrics,
-            "mypy_metrics": mypy_metrics,
             "feedback": structured_feedback
         }
 
@@ -179,3 +211,13 @@ class CodeReviewer:
             "max_q_value": np.max([np.max(q_values) for q_values in self.policy.q_table.values()]),
             "most_visited_state": max(self.policy.q_table.items(), key=lambda x: np.sum(x[1]))[0]
         }
+
+load_dotenv()
+client = Groq(
+    api_key=os.getenv("GROQ_API_KEY"),
+)
+print(client)
+codereview = CodeReviewer(client)
+info = {"code": "print('Hello World')"}
+x = codereview.review_code(info)
+print(x)
