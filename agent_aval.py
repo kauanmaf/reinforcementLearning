@@ -38,6 +38,7 @@ class CodeReviewer:
         # Começamos a política de epsilon greedy
         self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
         self.current_state = (0, 0)
+        self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
 
     def _get_llm_response(self, prompt: str) -> str:
         """
@@ -67,6 +68,12 @@ class CodeReviewer:
             print(f"Error getting LLM response: {e}")
             return "Unable to get LLM feedback at this time."
 
+    def static_analysis(self, info):
+        # Rodar ruff para analisar estilo e linting
+        self.ruff_metrics = self.run_ruff_analysis(info["code"])
+        # Rodar mypy para verificar tipagem estática
+        self.mypy_metrics = self.run_mypy_analysis(info["code"])
+    
     def review_code(self, info: Dict[str, Any]) -> CodeReviewResult:
         
         return result
@@ -76,11 +83,6 @@ class CodeReviewer:
         Gera um relatório com base no código fornecido e armazena na variável self.report.
         """
         code = info.get("code", "")
-
-        # Rodar ruff para analisar estilo e linting
-        ruff_metrics = self.run_ruff_analysis(code)
-        # Rodar mypy para verificar tipagem estática
-        mypy_metrics = self.run_mypy_analysis(code)
         
         # Construir prompt estruturado para o LLM
         prompt = f"""Por favor, gere um relatório de revisão para o seguinte código:
@@ -90,8 +92,8 @@ class CodeReviewer:
 
 ### Critérios de Avaliação:
 1. Correção do código (avaliar bugs e erros)
-2. Qualidade de estilo (baseada nas métricas de ruff: {ruff_metrics})
-3. Precisão de tipagem (baseada nas métricas de mypy: {mypy_metrics})
+2. Qualidade de estilo (baseada nas métricas de ruff: {self.metrics["ruff"]})
+3. Precisão de tipagem (baseada nas métricas de mypy: {self.metrics["mypy"]})
 4. Melhoria de desempenho e eficiência
 5. Sugestões de otimização e melhores práticas
 
