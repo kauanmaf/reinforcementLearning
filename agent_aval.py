@@ -7,13 +7,17 @@ import random
 from groq import Groq
 import subprocess
 from policy import EpsilonGreedyPolicy
-from instructor import Instructor
 from dotenv import load_dotenv
 import os
 import re
 import subprocess
 import tempfile
 
+load_dotenv()
+
+# Access the environment variables
+
+SCRIPTS_PATH = os.getenv("SCRIPTS_PATH")
 
 class ReviewAction(Enum):
     STATIC_ANALYSIS = "static_analysis"
@@ -78,21 +82,10 @@ class CodeReviewer:
             print(f"Error getting LLM response: {e}")
             return "Unable to get LLM feedback at this time."
 
-    def static_analysis(self, info):
-        # Executa as análises de qualidade
-        ruff_score = self._analyze_with_ruff(self.code)
-        mypy_score = self._analyze_with_mypy(self.code)
-        bandit_score = self._analyze_with_bandit(self.code)
-
-        self.grades["ruff_score"] = ruff_score
-        self.grades["mypy_score"] = mypy_score
-        self.grades["bandit_score"] = bandit_score
-
-    def review_code(self, info: Dict[str, Any]):
+    def review_code(self):
         """
         Perform a structured code review using Groq with feedback in 10 numbered metrics.
         """
-        code = info.get("code", "")
         
             
         # Manually create the structured prompt for Groq
@@ -111,7 +104,7 @@ class CodeReviewer:
 
 ### Code:
 ```python
-{code}
+{self.code}
 ```
 
 YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,int,int,int,int]. JUST THAT!!!.
@@ -121,26 +114,6 @@ YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,i
         self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1)
 
         print(self.grades["grades_llm"])
-    
-    def execute_and_score_code(self) -> int:
-        with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
-            temp_file.write(self.code)
-            temp_file.flush()
-            
-            # Tenta executar o código e captura exceções
-            try:
-                exec(open(temp_file.name).read())
-                execution_score = 10  # Nenhum erro, pontuação máxima
-            except Exception as e:
-                # Reduz a pontuação dependendo do tipo de exceção
-                if isinstance(e, (SyntaxError, NameError, TypeError, AttributeError)):
-                    execution_score = -30  # Erros críticos
-                elif isinstance(e, (IndexError, KeyError, ValueError)):
-                    execution_score = -20  # Erros moderados
-                else:
-                    execution_score = -10  # Erros menos graves
-        
-        self.grades["execution_score"] = execution_score
     
     def create_report(self, info):
         """
@@ -171,33 +144,6 @@ YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,i
             "feedback": structured_feedback
         }
 
-    def _create_llm_prompt(self, action: ReviewAction, code: str, report: str, base_result: CodeReviewResult) -> str:
-        """
-        Create context-aware prompt for LLM
-        """
-        prompt = f"""
-        As an expert code reviewer, analyze the following code and provide specific feedback.
-        
-        Action being taken: {action.value}
-        
-        Code:
-        ```python
-        {code}
-        ```
-        
-        Current Analysis:
-        {base_result.feedback}
-        
-        Focus on actionable feedback that will help improve the code.
-        """
-        return prompt
-
-    def update_policy(self, state: Tuple, action: int, reward: float, next_state: Tuple) -> None:
-        """
-        Update RL policy based on action results
-        """
-        self.policy.update(state, action, reward, next_state)
-        
     def optimize_prompt(self, info: Dict[str, Any]) -> str:
         """
         Create optimized prompt based on current state and history
@@ -229,25 +175,13 @@ YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,i
         
         return prompt
 
-    def get_policy_stats(self) -> Dict[str, Any]:
-        """
-        Get statistics about the current policy
-        """
-        return {
-            "num_states": len(self.policy.q_table),
-            "epsilon": self.policy.epsilon,
-            "average_q_value": np.mean([np.mean(q_values) for q_values in self.policy.q_table.values()]),
-            "max_q_value": np.max([np.max(q_values) for q_values in self.policy.q_table.values()]),
-            "most_visited_state": max(self.policy.q_table.items(), key=lambda x: np.sum(x[1]))[0]
-        }
-
     def _analyze_with_ruff(self) -> int:
         with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
             temp_file.write(self.code)
             temp_file.flush()
             
             result = subprocess.run(
-                ["ruff", temp_file.name],
+                [SCRIPTS_PATH + "ruff", temp_file.name],
                 capture_output=True,
                 text=True
             )
@@ -263,7 +197,7 @@ YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,i
             temp_file.flush()
             
             result = subprocess.run(
-                ["mypy", temp_file.name],
+                [SCRIPTS_PATH + "mypy", temp_file.name],
                 capture_output=True,
                 text=True
             )
@@ -279,7 +213,7 @@ YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,i
             temp_file.flush()
             
             result = subprocess.run(
-                ["bandit", "-r", temp_file.name],
+                [SCRIPTS_PATH + "bandit", "-r", temp_file.name],
                 capture_output=True,
                 text=True
             )
@@ -328,13 +262,54 @@ YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,i
                     execution_score = -10  # Erros menos graves
         
         self.grades["execution_score"] = execution_score
+## Obscuros
+    def get_policy_stats(self) -> Dict[str, Any]:
+        """
+        Get statistics about the current policy
+        """
+        return {
+            "num_states": len(self.policy.q_table),
+            "epsilon": self.policy.epsilon,
+            "average_q_value": np.mean([np.mean(q_values) for q_values in self.policy.q_table.values()]),
+            "max_q_value": np.max([np.max(q_values) for q_values in self.policy.q_table.values()]),
+            "most_visited_state": max(self.policy.q_table.items(), key=lambda x: np.sum(x[1]))[0]
+        }
 
-load_dotenv()
+    def update_policy(self, state: Tuple, action: int, reward: float, next_state: Tuple) -> None:
+        """
+        Update RL policy based on action results
+        """
+        self.policy.update(state, action, reward, next_state)
+
+    def _create_llm_prompt(self, action: ReviewAction, code: str, report: str, base_result: CodeReviewResult) -> str:
+        """
+        Create context-aware prompt for LLM
+        """
+        prompt = f"""
+        As an expert code reviewer, analyze the following code and provide specific feedback.
+        
+        Action being taken: {action.value}
+        
+        Code:
+        ```python
+        {code}
+        ```
+        
+        Current Analysis:
+        {base_result.feedback}
+        
+        Focus on actionable feedback that will help improve the code.
+        """
+        return prompt
+
+
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY"),
 )
 codereview = CodeReviewer(client)
 info = {"code": "print('Hello World')"}
 x = codereview._analyze_with_ruff()
+x = codereview._analyze_with_bandit()
+x = codereview._analyze_with_mypy()
 
 print(x)
