@@ -25,26 +25,27 @@ class CodeReviewResult:
 class CodeReviewer:
     def __init__(self, api_key: str, model: str = "llama3-8b-8192"):
         """
-        Initialize CodeReviewer with Groq client
+        Inicializamos o Code reviewer com o groq
         """
         self.groq_client = Groq(api_key=api_key)
         self.model = model
-        self.feedback_history = []
+        self.feedback_history = [{
+                    "role": "system",
+                    "content": "You are an expert code reviewer. Provide specific, actionable feedback."
+                }]
+        self.report = None
         
-        # Initialize RL policy
+        # Começamos a política de epsilon greedy
         self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
-        self.current_state = (0, 0)  # Initial state
+        self.current_state = (0, 0)
 
     def _get_llm_response(self, prompt: str) -> str:
         """
-        Get response from Groq LLM
+        Função que pede uma resposta ao llm.
         """
         try:
             completion = self.groq_client.chat.completions.create(
-                messages=[{
-                    "role": "system",
-                    "content": "You are an expert code reviewer. Provide specific, actionable feedback."
-                }, {
+                messages=[self.feedback_history, {
                     "role": "user",
                     "content": prompt
                 }],
@@ -52,58 +53,59 @@ class CodeReviewer:
                 temperature=0.7,
                 max_tokens=1000
             )
+            self.feedback_history.append({
+                    "role": "user",
+                    "content": prompt
+                })
+            self.feedback_history.append({
+                "role": "assistant",
+                "content": completion.choices[0].message.content
+            })
+            
             return completion.choices[0].message.content
         except Exception as e:
             print(f"Error getting LLM response: {e}")
             return "Unable to get LLM feedback at this time."
 
     def review_code(self, info: Dict[str, Any]) -> CodeReviewResult:
-        """
-        Review code using RL policy and LLM feedback
-        """
-        code = info.get("code", "")
-        report = info.get("report", "")
-        metrics = self._get_current_metrics(code, report)
-        
-        # Get state representation
-        state = self._get_state_representation(metrics)
-        
-        # Select action using epsilon-greedy policy
-        action_idx = self.policy.get_action(state)
-        action = list(ReviewAction)[action_idx]
-        
-        # Execute selected action
-        result = self._execute_action(action, code, report, metrics)
-        
-        # Update policy based on reward
-        next_metrics = self._get_current_metrics(code, report)
-        next_state = self._get_state_representation(next_metrics)
-        self.update_policy(state, action_idx, result.score, next_state)
-        
-        # Store feedback
-        self.feedback_history.append(result)
         
         return result
 
-    def _execute_action(self, action: ReviewAction, code: str, report: str, metrics: Dict[str, float]) -> CodeReviewResult:
+    def create_report(self, info):
         """
-        Execute selected action and get LLM feedback
+        Gera um relatório com base no código fornecido e armazena na variável self.report.
         """
-        base_result = super()._execute_action(action, code, report, metrics)
+        code = info.get("code", "")
+
+        # Rodar ruff para analisar estilo e linting
+        ruff_metrics = self.run_ruff_analysis(code)
+        # Rodar mypy para verificar tipagem estática
+        mypy_metrics = self.run_mypy_analysis(code)
         
-        # Enhance feedback with LLM
-        prompt = self._create_llm_prompt(action, code, report, base_result)
-        llm_feedback = self._get_llm_response(prompt)
-        
-        # Combine automated and LLM feedback
-        enhanced_result = CodeReviewResult(
-            action=base_result.action,
-            feedback=f"{base_result.feedback}\n\nDetailed Analysis:\n{llm_feedback}",
-            score=base_result.score,
-            suggestions=base_result.suggestions + self._parse_llm_suggestions(llm_feedback)
-        )
-        
-        return enhanced_result
+        # Construir prompt estruturado para o LLM
+        prompt = f"""Por favor, gere um relatório de revisão para o seguinte código:
+
+### Código:
+{code}
+
+### Critérios de Avaliação:
+1. Correção do código (avaliar bugs e erros)
+2. Qualidade de estilo (baseada nas métricas de ruff: {ruff_metrics})
+3. Precisão de tipagem (baseada nas métricas de mypy: {mypy_metrics})
+4. Melhoria de desempenho e eficiência
+5. Sugestões de otimização e melhores práticas
+
+"""
+
+        # Obter resposta do LLM
+        structured_feedback = self._get_llm_response(prompt)
+
+        # Armazenar o relatório
+        self.report = {
+            "ruff_metrics": ruff_metrics,
+            "mypy_metrics": mypy_metrics,
+            "feedback": structured_feedback
+        }
 
     def _create_llm_prompt(self, action: ReviewAction, code: str, report: str, base_result: CodeReviewResult) -> str:
         """
@@ -163,24 +165,6 @@ class CodeReviewer:
         
         return prompt
 
-    def _analyze_feedback_history(self) -> List[str]:
-        """
-        Analyze feedback history to identify common patterns
-        """
-        if not self.feedback_history:
-            return []
-            
-        issue_counter: Dict[str, int] = {}
-        for result in self.feedback_history:
-            for suggestion in result.suggestions:
-                issue_counter[suggestion] = issue_counter.get(suggestion, 0) + 1
-                
-        # Return most common issues
-        return [issue for issue, count in sorted(
-            issue_counter.items(), 
-            key=lambda x: x[1], 
-            reverse=True
-        )[:3]]
 
     def get_policy_stats(self) -> Dict[str, Any]:
         """
