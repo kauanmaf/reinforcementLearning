@@ -10,6 +10,10 @@ from policy import EpsilonGreedyPolicy
 from instructor import Instructor
 from dotenv import load_dotenv
 import os
+import re
+import subprocess
+import tempfile
+
 
 class ReviewAction(Enum):
     STATIC_ANALYSIS = "static_analysis"
@@ -36,50 +40,54 @@ class CodeReviewer:
                     "role": "system",
                     "content": "You are an expert code reviewer. Provide specific, actionable feedback."
                 }]
-        self.report = None
-        
         # Começamos a política de epsilon greedy
         self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
-        self.current_state = (0, 0)
+        
+        self.code = "print('Hello World')"
         self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
-        self.instructor = Instructor(client=self.groq_client, create=self.groq_client.chat.completions.create)
+        self.report = None
+        self.current_state = None
+        self.grades = {}
 
-
-    def _get_llm_response(self, prompt: str) -> str:
+    def _get_llm_response(self, prompt: str, temperature: float = 0.7) -> str:
         """
         Função que pede uma resposta ao llm.
         """
         try:
+            # Merge feedback history and the new user message
+            messages = self.feedback_history + [{"role": "user", "content": prompt}]
+
+            # Call the Groq client
             completion = self.groq_client.chat.completions.create(
-                messages=[self.feedback_history, {
-                    "role": "user",
-                    "content": prompt
-                }],
+                messages=messages,
                 model=self.model,
-                temperature=0.7,
+                temperature=temperature,
                 max_tokens=1000
             )
-            self.feedback_history.append({
-                    "role": "user",
-                    "content": prompt
-                })
+
+            # Update feedback history with the user message and assistant response
+            self.feedback_history.append({"role": "user", "content": prompt})
             self.feedback_history.append({
                 "role": "assistant",
                 "content": completion.choices[0].message.content
             })
-            print(completion.choices[0].message.content)
-            
+
             return completion.choices[0].message.content
+
         except Exception as e:
             print(f"Error getting LLM response: {e}")
             return "Unable to get LLM feedback at this time."
 
     def static_analysis(self, info):
-        # Rodar ruff para analisar estilo e linting
-        self.ruff_metrics = self.run_ruff_analysis(info["code"])
-        # Rodar mypy para verificar tipagem estática
-        self.mypy_metrics = self.run_mypy_analysis(info["code"])
-    
+        # Executa as análises de qualidade
+        ruff_score = self._analyze_with_ruff(self.code)
+        mypy_score = self._analyze_with_mypy(self.code)
+        bandit_score = self._analyze_with_bandit(self.code)
+
+        self.grades["ruff_score"] = ruff_score
+        self.grades["mypy_score"] = mypy_score
+        self.grades["bandit_score"] = bandit_score
+
     def review_code(self, info: Dict[str, Any]):
         """
         Perform a structured code review using Groq with feedback in 10 numbered metrics.
@@ -105,13 +113,35 @@ class CodeReviewer:
 ```python
 {code}
 ```
+
+YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,int,int,int,int]. JUST THAT!!!.
 """
 
         # Obtain structured feedback from Groq
-        structured_feedback = self._get_llm_response(prompt)
+        self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1)
 
-        return structured_feedback
-
+        print(self.grades["grades_llm"])
+    
+    def execute_and_score_code(self) -> int:
+        with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
+            temp_file.write(self.code)
+            temp_file.flush()
+            
+            # Tenta executar o código e captura exceções
+            try:
+                exec(open(temp_file.name).read())
+                execution_score = 10  # Nenhum erro, pontuação máxima
+            except Exception as e:
+                # Reduz a pontuação dependendo do tipo de exceção
+                if isinstance(e, (SyntaxError, NameError, TypeError, AttributeError)):
+                    execution_score = -30  # Erros críticos
+                elif isinstance(e, (IndexError, KeyError, ValueError)):
+                    execution_score = -20  # Erros moderados
+                else:
+                    execution_score = -10  # Erros menos graves
+        
+        self.grades["execution_score"] = execution_score
+    
     def create_report(self, info):
         """
         Gera um relatório com base no código fornecido e armazena na variável self.report.
@@ -199,7 +229,6 @@ class CodeReviewer:
         
         return prompt
 
-
     def get_policy_stats(self) -> Dict[str, Any]:
         """
         Get statistics about the current policy
@@ -212,12 +241,100 @@ class CodeReviewer:
             "most_visited_state": max(self.policy.q_table.items(), key=lambda x: np.sum(x[1]))[0]
         }
 
+    def _analyze_with_ruff(self) -> int:
+        with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
+            temp_file.write(self.code)
+            temp_file.flush()
+            
+            result = subprocess.run(
+                ["ruff", temp_file.name],
+                capture_output=True,
+                text=True
+            )
+            
+        # Calcula a pontuação com base na quantidade de problemas encontrados
+        issues = result.stdout.strip().count("\n") + 1 if result.stdout else 0
+        score = -issues  # Cada problema reduz 1 ponto até o mínimo de 0
+        return score
+
+    def _analyze_with_mypy(self) -> int:
+        with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
+            temp_file.write(self.code)
+            temp_file.flush()
+            
+            result = subprocess.run(
+                ["mypy", temp_file.name],
+                capture_output=True,
+                text=True
+            )
+            
+        # Calcula a pontuação com base na quantidade de erros de tipo
+        issues = result.stdout.strip().count("\n") if result.stdout else 0
+        score = -2*issues  # Cada problema reduz 2 pontos até o mínimo de 0
+        return score
+
+    def _analyze_with_bandit(self) -> int:
+        with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
+            temp_file.write(self.code)
+            temp_file.flush()
+            
+            result = subprocess.run(
+                ["bandit", "-r", temp_file.name],
+                capture_output=True,
+                text=True
+            )
+        
+        # Calcula a pontuação com base na severidade dos problemas de segurança
+        severity_pattern = re.compile(r'Severity: (\w+)')
+        severities = severity_pattern.findall(result.stdout)
+        
+        score = 0  # Começa com uma pontuação máxima de 10
+        for severity in severities:
+            if severity == 'High':
+                score -= 8
+            elif severity == 'Medium':
+                score -= 5
+            elif severity == 'Low':
+                score -= 3
+
+        return score
+
+    def static_analysis(self, info):
+        # Executa as análises de qualidade
+        ruff_score = self._analyze_with_ruff(self.code)
+        mypy_score = self._analyze_with_mypy(self.code)
+        bandit_score = self._analyze_with_bandit(self.code)
+
+        self.grades["ruff_score"] = ruff_score
+        self.grades["mypy_score"] = mypy_score
+        self.grades["bandit_score"] = bandit_score
+
+    def execute_and_score_code(self) -> int:
+        with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
+            temp_file.write(self.code)
+            temp_file.flush()
+            
+            # Tenta executar o código e captura exceções
+            try:
+                exec(open(temp_file.name).read())
+                execution_score = 10  # Nenhum erro, pontuação máxima
+            except Exception as e:
+                # Reduz a pontuação dependendo do tipo de exceção
+                if isinstance(e, (SyntaxError, NameError, TypeError, AttributeError)):
+                    execution_score = -30  # Erros críticos
+                elif isinstance(e, (IndexError, KeyError, ValueError)):
+                    execution_score = -20  # Erros moderados
+                else:
+                    execution_score = -10  # Erros menos graves
+        
+        self.grades["execution_score"] = execution_score
+
 load_dotenv()
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY"),
 )
-print(client)
 codereview = CodeReviewer(client)
 info = {"code": "print('Hello World')"}
-x = codereview.review_code(info)
+x = codereview._analyze_with_ruff()
+
 print(x)
