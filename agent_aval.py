@@ -23,7 +23,6 @@ class ReviewAction(Enum):
     STATIC_ANALYSIS = "static_analysis"
     EXECUTE_CODE = "execute_code"
     PROPOSE_REFACTORING = "propose_refactoring"
-    APPROVE_CODE = "approve_code"
     IMPROVE_REPORT = "improve_report"
 
 @dataclass
@@ -46,6 +45,7 @@ class CodeReviewer:
                 }]
         # Começamos a política de epsilon greedy
         self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
+        self.actions = [self.create_report, self.execute_and_score_code, self.review_code, self.static_analysis]
         
         self.code = "print('Hello World')"
         self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
@@ -231,7 +231,7 @@ YOUR OUTPUT SHOULD BE A TUPLE WITH 10 GRADES LIKE THIS (int,int,int,int,int,int,
                     execution_score = -10  # Erros menos graves
         
         self.grades["execution_score"] = execution_score
-## Obscuros
+
     def get_policy_stats(self) -> Dict[str, Any]:
         """
         Get statistics about the current policy
@@ -250,27 +250,12 @@ YOUR OUTPUT SHOULD BE A TUPLE WITH 10 GRADES LIKE THIS (int,int,int,int,int,int,
         """
         self.policy.update(state, action, reward, next_state)
 
-    def _create_llm_prompt(self, action: ReviewAction, code: str, report: str, base_result: CodeReviewResult) -> str:
-        """
-        Create context-aware prompt for LLM
-        """
-        prompt = f"""
-        As an expert code reviewer, analyze the following code and provide specific feedback.
+    def act(self, state):
+        action = self.policy.get_action(state)
+        answer = self.actions[action]()
         
-        Action being taken: {action.value}
-        
-        Code:
-        ```python
-        {code}
-        ```
-        
-        Current Analysis:
-        {base_result.feedback}
-        
-        Focus on actionable feedback that will help improve the code.
-        """
-        return prompt
-
+        return answer
+    
 
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY"),
