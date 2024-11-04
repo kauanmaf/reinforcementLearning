@@ -37,6 +37,9 @@ with open("prompts/review_code.txt", "r") as file:
 with open("prompts/create_report.txt", "r") as file:
     prompt_create_report = file.read()
 
+with open("prompts/init_reviewer.txt", "r") as file:
+    prompt_init_reviewer = file.read()
+
 
 load_dotenv()
 
@@ -66,7 +69,7 @@ class CodeReviewer:
         self.model = model
         self.feedback_history = [{
                     "role": "system",
-                    "content": "You are an expert code reviewer. Provide specific, actionable feedback."
+                    "content": prompt_init_reviewer
                 }]
         # Começamos a política de epsilon greedy
         self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
