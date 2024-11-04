@@ -1,35 +1,30 @@
 import os
 from groq import Groq
+import numpy as np
 
 client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
+import pandas as pd
+
+# Dados fictícios
+data = {
+    "Product": ["Product A", "Product B", "Product C", "Product A", "Product B"],
+    "Sales": [200, 150, 300, 400, 250],
+    "Date": pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"]),
+    "Quantity": [3, 2, 5, 7, 4]
+}
+
+# Criando o DataFrame
+df = pd.DataFrame(data)
+
+
 chat_completion = client.chat.completions.create(
     messages=[
         {
             "role": "user",
-            "content": """Execute este código: # Este script calcula a média de uma lista de números fornecida pelo usuário
-
-# Função para calcular a média
-def calcular_media(numeros):
-    # Verifica se a lista não está vazia
-    if len(numeros) == 0:
-        return 0
-    # Soma todos os números e divide pela quantidade para obter a média
-    return sum(numeros) / len(numeros)
-
-# Solicita ao usuário para inserir os números, separados por espaços
-entrada = input("Digite uma lista de números separados por espaço: ")
-
-# Converte a entrada em uma lista de números (float)
-numeros = [float(num) for num in entrada.split()]
-
-# Calcula a média usando a função
-media = calcular_media(numeros)
-
-# Exibe o resultado
-print(f"A média dos números fornecidos é: {media}")""",
+            "content": f"Faça uma análise sobre esses dados: {df}",
         }
     ],
     model="llama3-8b-8192",

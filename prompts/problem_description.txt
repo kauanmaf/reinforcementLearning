@@ -27,3 +27,7 @@ The competition uses **Root-Mean-Squared-Error (RMSE)** on the **logarithmic sca
 ### Submission Structure
 
 The submission format consists of two columns: `Id` and `SalePrice`. Each row corresponds to a house in the test set, with the `Id` column containing unique identifiers and the `SalePrice` column containing the predicted sale price for each corresponding house.
+
+## Data: No dicionário abaixo, estão o conjunto de treino, "train", os rótulos desse conjunto, "sample_submission", e o conjunto de teste, "test".
+
+{data}

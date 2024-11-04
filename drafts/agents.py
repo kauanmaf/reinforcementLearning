@@ -138,6 +138,8 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-teste = Judger(client, "Test")
+a = np.array([1, 1, 1])
+
+teste = Judger(client, "Leia o seguinte ")
 answer = teste.judge("Test")
 print(answer)

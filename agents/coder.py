@@ -1,4 +1,3 @@
-from pathlib import Path
 import sys
 import os
 
@@ -28,6 +27,7 @@ with open("prompts/process_data.txt", "r") as file:
 with open("prompts/visualize_results.txt", "r") as file:
     prompt_visualize_results = file.read()
 
+
 class Coder():
     def __init__(self, client, problem):
         self.client = client
@@ -36,7 +36,6 @@ class Coder():
         self.policy = EpsilonGreedyPolicy(4)
         self.history = [{"role": "system",
                          "content": prompt_coder.format(problem = self.problem)}]
-        
 
     def act(self, state):
         action = self.policy.get_action(state)
