@@ -11,7 +11,7 @@ class Coder():
         self.actions = [self.process_data, self.analyze_data, self.visualize_results, self.interpret_analysis]
         self.policy = EpsilonGreedyPolicy(4)
         self.history = [{"role": "system",
-                         "content": f"Você é um desenvolvedor Python e cientista de dados. Sua função é escrever código para resolver o seguinte problema de ciência de dados: {self.problem}. Seja conciso e certifique-se de documentar o seu código."}]
+                         "content": f"You are a Python developer and data scientist. Your role is to write code to solve the following data science problem: {self.problem}. Be concise and make sure to document your code."}]
         
 
     def act(self, state):
@@ -26,7 +26,7 @@ class Coder():
 
 
     def process_data(self):
-        message = "Faça o seguinte no código: limpe, transforme e prepare os dados para análise."
+        message = "Do the following in the code: clean, transform, and prepare the data for analysis."
 
         self.history.append({"role": "user",
                              "content": message})
@@ -43,7 +43,7 @@ class Coder():
     
 
     def analyze_data(self):
-        message = "Faça o seguinte no código: realize análises estatísticas ou construa modelos de aprendizado de máquina."
+        message = "Do the following in the code: perform statistical analyses or build machine learning models."
 
         self.history.append({"role": "user",
                              "content": message})
@@ -60,7 +60,7 @@ class Coder():
     
 
     def visualize_results(self):
-        message = "Faça o seguinte no código: gere gráficos e visualizações dos dados."
+        message = "Do the following in the code: generate charts and data visualizations."
 
         self.history.append({"role": "user",
                              "content": message})
@@ -77,7 +77,7 @@ class Coder():
     
 
     def interpret_analysis(self):
-        message = "Faça o seguinte no código: interprete os resultados, produzindo um texto que inclua os resultados da análise na forma de figuras e tabelas."
+        message = "Do the following in the code: interpret the results, producing text that includes analysis results in the form of figures and tables."
 
         self.history.append({"role": "user",
                              "content": message})
@@ -98,22 +98,22 @@ class Judger():
         self.client = client
         self.problem = problem
         self.history = [{"role": "system",
-                         "content": f"""Você é um avaliador de relatórios crítico. Sua função é atribuir notas de forma estruturada para os relatórios passados, que tratam do seguinte problema: {self.problem}. Escreva APENAS (NÃO ESCREVA MAIS NADA ALÉM!!!) uma tupla com notas de 0 a 10 para cada um dos tópicos a seguir:
+                         "content": f"""You are a critical report evaluator. Your role is to assign scores in a structured way to the reports provided, which address the following problem: {self.problem}. Write ONLY (DO NOT WRITE ANYTHING ELSE BEYOND!!!) a tuple with scores from 0 to 10 for each of the following topics:
 
-                         - Clareza: A descrição do problema é clara e compreensível?
-                         - Acurácia: A descrição do problema é precisa e relevante?
-                         - Completude: Todos os conjuntos de dados relevantes são descritos com detalhes suficientes?
-                         - Análise de qualidade de dados: A qualidade e as características dos dados são discutidas (por exemplo, valores ausentes, outliers)?
-                         - Visualização: Os dados são bem visualizados usando gráficos ou tabelas?
-                         - Abordagem: A metodologia escolhida é adequada para resolver o problema de análise de dados?
-                         - Justificativa: Há uma justificativa clara para o motivo pelo qual métodos ou técnicas específicas foram escolhidos?
-                         - Implementação: A implementação da metodologia é descrita com precisão e detalhes?
-                         - Precisão: Os resultados são precisos e consistentes com os objetivos da análise?
-                         - Entendimento: Os resultados são interpretados e discutidos adequadamente?
-                         - Visualização: Os resultados são visualizados de forma eficaz e fáceis de entender (por exemplo, gráficos, tabelas)?
-                         - Resumo: A conclusão resume sucintamente as principais descobertas do relatório?
-                         - Implicações: As implicações dos resultados são discutidas?
-                         - Recomendações: Há recomendações acionáveis ou próximas etapas?
+                         - Clarity: Is the problem description clear and understandable?
+                         - Accuracy: Is the problem description accurate and relevant?
+                         - Completeness: Are all relevant data sets described in sufficient detail?
+                         - Data Quality Analysis: Is the quality and characteristics of the data discussed (e.g., missing values, outliers)?
+                         - Visualization: Is the data well-visualized using charts or tables?
+                         - Approach: Is the chosen methodology appropriate to solve the data analysis problem?
+                         - Justification: Is there a clear justification for why specific methods or techniques were chosen?
+                         - Implementation: Is the implementation of the methodology accurately and thoroughly described?
+                         - Precision: Are the results accurate and consistent with the analysis objectives?
+                         - Understanding: Are the results adequately interpreted and discussed?
+                         - Visualization: Are the results effectively visualized and easy to understand (e.g., charts, tables)?
+                         - Summary: Does the conclusion succinctly summarize the main findings of the report?
+                         - Implications: Are the implications of the results discussed?
+                         - Recommendations: Are there actionable recommendations or next steps?
                          """}]
         
     def judge(self, report):
@@ -138,6 +138,6 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-teste = Judger(client, "Teste")
-answer = teste.judge("Teste")
-print(type(answer))
+teste = Judger(client, "Test")
+answer = teste.judge("Test")
+print(answer)
