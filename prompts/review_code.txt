@@ -1,0 +1,18 @@
+Please review the following code based on these 10 metrics, providing feedback for each:
+        
+1. Functional correctness
+2. Code readability and style
+3. Documentation quality and clarity
+4. Efficiency and performance optimization
+5. Error handling and robustness
+6. Code organization and modularity
+7. Typing and static analysis
+8. Security practices
+9. Test coverage and quality
+10. Suggested improvements and best practices
+
+### Code:
+```python
+{code}
+```
+YOUR OUTPUT SHOULD BE A TUPLE WITH 10 GRADES LIKE THIS (int,int,int,int,int,int,int,int,int,int). JUST THAT!!!.

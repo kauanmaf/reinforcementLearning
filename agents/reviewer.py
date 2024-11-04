@@ -1,3 +1,20 @@
+import os
+import sys
+
+if __name__ == '__main__':
+    # Obtém o diretório do arquivo atual
+    current_dir = os.path.dirname(__file__)
+    
+    # Navega até o diretório pai do pai (ou seja, dois níveis acima)
+    parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
+    
+    # Define o diretório pai do pai como diretório atual
+    os.chdir(parent_dir)
+    
+    # Opcional: Adiciona o diretório pai do pai ao sys.path para permitir importações
+    sys.path.append(parent_dir)
+
+    
 from typing import Dict, Any, Tuple, List
 from dataclasses import dataclass
 from enum import Enum
@@ -9,6 +26,15 @@ import os
 import re
 import subprocess
 import tempfile
+
+
+from policy import EpsilonGreedyPolicy
+
+
+with open("prompts/review_code.txt", "r") as file:
+    prompt_review_code = file.read()
+
+
 
 load_dotenv()
 
@@ -86,26 +112,7 @@ class CodeReviewer:
         
             
         # Manually create the structured prompt for Groq
-        prompt = f"""Please review the following code based on these 10 metrics, providing feedback for each:
-        
-1. Functional correctness
-2. Code readability and style
-3. Documentation quality and clarity
-4. Efficiency and performance optimization
-5. Error handling and robustness
-6. Code organization and modularity
-7. Typing and static analysis
-8. Security practices
-9. Test coverage and quality
-10. Suggested improvements and best practices
-
-### Code:
-```python
-{self.code}
-```
-
-YOUR OUTPUT SHOULD BE A TUPLE WITH 10 GRADES LIKE THIS (int,int,int,int,int,int,int,int,int,int). JUST THAT!!!.
-"""
+        prompt = prompt_review_code.format(code = self.code)
 
         # Obtain structured feedback from Groq
         self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1)
