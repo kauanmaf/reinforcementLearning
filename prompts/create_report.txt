@@ -1,0 +1,11 @@
+Por favor, gere um relatório de revisão para o seguinte código:
+
+### Código:
+{code}
+
+### Critérios de Avaliação:
+1. Correção do código (avaliar bugs e erros)
+2. Qualidade de estilo (baseada nas métricas de ruff: {ruff_metrics})
+3. Precisão de tipagem (baseada nas métricas de mypy: {mypy_metrics})
+4. Melhoria de desempenho e eficiência
+5. Sugestões de otimização e melhores práticas
