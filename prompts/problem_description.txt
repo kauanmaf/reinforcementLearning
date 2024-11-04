@@ -1,0 +1,29 @@
+# House Price Prediction Competition Overview
+
+## Context and Objective
+
+This project involves predicting house prices based on a dataset of home characteristics. Your objective is to create a model that can accurately estimate the final sale price of residential homes in Ames, Iowa. The dataset includes **79 features** that describe various attributes of each house, capturing aspects beyond basic characteristics such as size and location. 
+
+### Purpose
+
+The goal of this task is to use the provided dataset to predict the final sale price of each house. The dataset is structured with rows representing individual houses and columns representing different house features, such as the year built, square footage, and quality of various parts of the home.
+
+---
+
+## Skills Utilized
+
+To solve this task, you will employ techniques in:
+- **Feature engineering**: to transform raw data into meaningful input for your model, based on the dataset's characteristics.
+- **Advanced regression models**: particularly models that can handle a variety of numeric and categorical variables, such as random forests or gradient-boosted trees.
+
+---
+
+## Evaluation Method
+
+### Target Metric
+
+The competition uses **Root-Mean-Squared-Error (RMSE)** on the **logarithmic scale of the sale prices** as the evaluation metric. This means that you should compute the error between the natural logarithm of predicted prices and the natural logarithm of actual prices for each house. Using a logarithmic scale balances the impact of errors, ensuring that both higher and lower-priced houses contribute equally to the final score.
+
+### Submission Structure
+
+The submission format consists of two columns: `Id` and `SalePrice`. Each row corresponds to a house in the test set, with the `Id` column containing unique identifiers and the `SalePrice` column containing the predicted sale price for each corresponding house.
