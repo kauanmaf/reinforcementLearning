@@ -40,7 +40,6 @@ with open("prompts/create_report.txt", "r") as file:
 with open("prompts/init_reviewer.txt", "r") as file:
     prompt_init_reviewer = file.read()
 
-
 load_dotenv()
 
 # Access the environment variables
@@ -61,7 +60,7 @@ class CodeReviewResult:
     suggestions: List[str]
 
 class CodeReviewer:
-    def __init__(self, client: str, model: str = "llama3-8b-8192"):
+    def __init__(self, client: str, problem, model: str = "llama3-8b-8192"):
         """
         Inicializamos o Code reviewer com o groq
         """
@@ -69,7 +68,7 @@ class CodeReviewer:
         self.model = model
         self.feedback_history = [{
                     "role": "system",
-                    "content": prompt_init_reviewer
+                    "content": prompt_init_reviewer + problem
                 }]
         # Começamos a política de epsilon greedy
         self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
