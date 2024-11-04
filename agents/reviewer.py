@@ -34,6 +34,8 @@ from policy import EpsilonGreedyPolicy
 with open("prompts/review_code.txt", "r") as file:
     prompt_review_code = file.read()
 
+with open("prompts/create_report.txt", "r") as file:
+    prompt_create_report = file.read()
 
 
 load_dotenv()
@@ -126,19 +128,7 @@ class CodeReviewer:
         code = info.get("code", "")
         
         # Construir prompt estruturado para o LLM
-        prompt = f"""Por favor, gere um relatório de revisão para o seguinte código:
-
-### Código:
-{code}
-
-### Critérios de Avaliação:
-1. Correção do código (avaliar bugs e erros)
-2. Qualidade de estilo (baseada nas métricas de ruff: {self.metrics["ruff"]})
-3. Precisão de tipagem (baseada nas métricas de mypy: {self.metrics["mypy"]})
-4. Melhoria de desempenho e eficiência
-5. Sugestões de otimização e melhores práticas
-
-"""
+        prompt = prompt_create_report.format(code = self.code, ruff_metrics = self.metrics["ruff"], mypy_metrics = self.metrics["mypy"] )
 
         # Obter resposta do LLM
         structured_feedback = self._get_llm_response(prompt)
