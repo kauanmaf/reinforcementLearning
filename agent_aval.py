@@ -107,7 +107,7 @@ class CodeReviewer:
 {self.code}
 ```
 
-YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,int,int,int,int]. JUST THAT!!!.
+YOUR OUTPUT SHOULD BE A TUPLE WITH 10 GRADES LIKE THIS (int,int,int,int,int,int,int,int,int,int). JUST THAT!!!.
 """
 
         # Obtain structured feedback from Groq
@@ -143,37 +143,6 @@ YOUR OUTPUT SHOULD BE A LIST WITH 10 GRADES LIKE THIS [int,int,int,int,int,int,i
         self.report = {
             "feedback": structured_feedback
         }
-
-    def optimize_prompt(self, info: Dict[str, Any]) -> str:
-        """
-        Create optimized prompt based on current state and history
-        """
-        current_result = self.review_code(info)
-        
-        # Analyze feedback history for patterns
-        common_issues = self._analyze_feedback_history()
-        
-        prompt = f"""
-        Code Review Feedback:
-        Action Taken: {current_result.action.value}
-        
-        Overall Score: {current_result.score:.2f}
-        
-        Feedback:
-        {current_result.feedback}
-        
-        Common Issues Identified:
-        {chr(10).join(f'- {issue}' for issue in common_issues)}
-        
-        Suggestions for Improvement:
-        {chr(10).join(f'- {suggestion}' for suggestion in current_result.suggestions)}
-        
-        Current Learning State:
-        - Exploration rate (epsilon): {self.policy.epsilon:.3f}
-        - Number of states explored: {len(self.policy.q_table)}
-        """
-        
-        return prompt
 
     def _analyze_with_ruff(self) -> int:
         with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
