@@ -5,3 +5,5 @@ from agents.judger import Judger
 problem = """
 
 """
+
+coder = Coder()

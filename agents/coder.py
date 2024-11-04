@@ -1,4 +1,32 @@
+from pathlib import Path
+import sys
+import os
+
+if __name__ == '__main__':
+    # Obtém o diretório do arquivo atual
+    current_dir = os.path.dirname(__file__)
+    
+    # Navega até o diretório pai do pai (ou seja, dois níveis acima)
+    parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
+    
+    # Define o diretório pai do pai como diretório atual
+    os.chdir(parent_dir)
+    
+    # Opcional: Adiciona o diretório pai do pai ao sys.path para permitir importações
+    sys.path.append(parent_dir)
+
 from policy import EpsilonGreedyPolicy
+
+with open("prompts/coder.txt", "r") as file:
+    prompt_coder = file.read()
+with open("prompts/analyze_data.txt", "r") as file:
+    prompt_analyze_data = file.read()
+with open("prompts/interpret_analysis.txt", "r") as file:
+    prompt_interpret_analysis = file.read()
+with open("prompts/process_data.txt", "r") as file:
+    prompt_process_data = file.read()
+with open("prompts/visualize_results.txt", "r") as file:
+    prompt_visualize_results = file.read()
 
 class Coder():
     def __init__(self, client, problem):
@@ -7,7 +35,7 @@ class Coder():
         self.actions = [self.process_data, self.analyze_data, self.visualize_results, self.interpret_analysis]
         self.policy = EpsilonGreedyPolicy(4)
         self.history = [{"role": "system",
-                         "content": f"You are a Python developer and data scientist. Your role is to write code to solve the following data science problem: {self.problem}. Be concise and make sure to document your code."}]
+                         "content": prompt_coder.format(problem = self.problem)}]
         
 
     def act(self, state):
@@ -22,10 +50,8 @@ class Coder():
 
 
     def process_data(self):
-        message = "Do the following in the code: clean, transform, and prepare the data for analysis."
-
         self.history.append({"role": "user",
-                             "content": message})
+                             "content": prompt_process_data})
         
         answer = self.client.chat.completions.create(
             messages = self.history,
@@ -39,10 +65,8 @@ class Coder():
     
 
     def analyze_data(self):
-        message = "Do the following in the code: perform statistical analyses or build machine learning models."
-
         self.history.append({"role": "user",
-                             "content": message})
+                             "content": prompt_analyze_data})
         
         answer = self.client.chat.completions.create(
             messages = self.history,
@@ -56,10 +80,8 @@ class Coder():
     
 
     def visualize_results(self):
-        message = "Do the following in the code: generate charts and data visualizations."
-
         self.history.append({"role": "user",
-                             "content": message})
+                             "content": prompt_visualize_results})
         
         answer = self.client.chat.completions.create(
             messages = self.history,
@@ -73,10 +95,8 @@ class Coder():
     
 
     def interpret_analysis(self):
-        message = "Do the following in the code: interpret the results, producing text that includes analysis results in the form of figures and tables."
-
         self.history.append({"role": "user",
-                             "content": message})
+                             "content": prompt_interpret_analysis})
         
         answer = self.client.chat.completions.create(
             messages = self.history,
