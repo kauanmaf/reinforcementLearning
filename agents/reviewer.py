@@ -90,10 +90,22 @@ class CodeReviewer:
         self.code = None
         self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
         self.report = None
-        self.grades = {}
+        self.grades = {"grades_llm": (0,0,0,0,0,0,0,0,0,0), 
+                       "ruff": 0, 
+                       "mypy": 0, 
+                       "bandit" : 0, 
+                       "execution_score": 0}
         self.current_action = None
         self.state = (0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
+
+    def get_coder_state_from_grades(self):
+        return (*self.grades["grades_llm"], 
+                self.grades["ruff"], 
+                self.grades["mypy"], 
+                self.grades["bandit"], 
+                self.grades["execution_score"])
+    
 
     def _get_llm_response(self, prompt: str, temperature: float = 0.7) -> str:
         """
