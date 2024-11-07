@@ -20,7 +20,9 @@ class Environment:
         self.judger.reset()
         self.done = False
 
-    # def _coder_gen_new_code(self):
+    def _coder_gen_new_code(self):
+        self.coder.act()
+        self.reviewer.code = self.coder.code
 
 
     def _get_judger_to_analize_report(self, report):
@@ -36,17 +38,26 @@ class Environment:
         total_reward = 0
         max_steps = 100
         step_count = 0
+        self._coder_gen_new_code()
 
         while not self.done and step_count < max_steps:
-            coder_action = self.coder.act(self.state)
-            reviewer_action = self.reviewer.act(self.state)
-            
-            state, reward, self.done = self.step(coder_action, reviewer_action)
-            total_reward += reward
-            step_count += 1
+            # Fazer com que o reviewer aja:
+            self.reviewer.act()
 
-            # Atualizar a política dos agentes com as recompensas obtidas
-            self.coder.update_policy(state, coder_action, reward, self.state)
-            self.reviewer.update_policy(state, reviewer_action, reward, self.state)
+            # Se a ação do reviewer tiver sido review code
+            if self.reviewer.current_action == 2:
+                # Atualizamos os estados gerados pelo reviewer
+                self.coder.state = self.reviewer.get_coder_state_from_grades()
+                # E fazemos com que o coder gere um novo código
+                self._coder_gen_new_code()
+            
+            
+            # state, reward, self.done = self.step(coder_action, reviewer_action)
+            # total_reward += reward
+            # step_count += 1
+
+            # # Atualizar a política dos agentes com as recompensas obtidas
+            # self.coder.update_policy(state, coder_action, reward, self.state)
+            # self.reviewer.update_policy(state, reviewer_action, reward, self.state)
 
         return total_reward
