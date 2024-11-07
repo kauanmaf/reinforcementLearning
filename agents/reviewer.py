@@ -66,6 +66,7 @@ class CodeReviewer:
         """
         self.groq_client = client
         self.model = model
+        self.problem = problem
         self.feedback_history = [{
                     "role": "system",
                     "content": prompt_init_reviewer + problem
@@ -80,6 +81,19 @@ class CodeReviewer:
         self.current_state = None
         self.grades = {}
         self.current_action = None
+
+    def reset(self):
+        self.feedback_history = [{
+                    "role": "system",
+                    "content": prompt_init_reviewer + self.problem
+                }]
+        self.code = None
+        self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
+        self.report = None
+        self.current_state = None
+        self.grades = {}
+        self.current_action = None
+
 
     def _get_llm_response(self, prompt: str, temperature: float = 0.7) -> str:
         """
