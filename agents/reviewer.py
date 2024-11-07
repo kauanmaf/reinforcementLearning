@@ -78,9 +78,9 @@ class CodeReviewer:
         self.code = "print('Hello World')"
         self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
         self.report = None
-        self.current_state = None
         self.grades = {}
         self.current_action = None
+        self.state = (0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
     def reset(self):
         self.feedback_history = [{
@@ -90,9 +90,9 @@ class CodeReviewer:
         self.code = None
         self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
         self.report = None
-        self.current_state = None
         self.grades = {}
         self.current_action = None
+        self.state = (0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
 
     def _get_llm_response(self, prompt: str, temperature: float = 0.7) -> str:
@@ -261,7 +261,7 @@ class CodeReviewer:
         """
         self.policy.update(state, action, reward, next_state)
 
-    def act(self, state):
-        action = self.policy.get_action(state)
+    def act(self):
+        action = self.policy.get_action(self.state)
         self.current_action = action
         self.actions[action]()

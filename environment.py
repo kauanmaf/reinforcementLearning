@@ -20,8 +20,10 @@ class Environment:
         self.judger.reset()
         self.done = False
 
+    # def _coder_gen_new_code(self):
 
-    def get_judger_to_analize_report(self, report):
+
+    def _get_judger_to_analize_report(self, report):
         score = self.judger.judge(report)
         score = sum(score)
         if score > self.threshold:
