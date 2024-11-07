@@ -37,9 +37,10 @@ class Coder():
         self.history = [{"role": "system",
                          "content": prompt_coder.format(problem = self.problem)}]
         self.code = None
+        self.state = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-    def act(self, state):
-        action = self.policy.get_action(state)
+    def act(self):
+        action = self.policy.get_action(self.state)
         self.actions[action]()
     
 
@@ -51,6 +52,7 @@ class Coder():
         self.history = [{"role": "system",
                          "content": prompt_coder.format(problem = self.problem)}]
         self.code = None
+        self.state = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 
     def process_data(self):
