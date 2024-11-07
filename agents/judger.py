@@ -17,8 +17,12 @@ class Judger():
         self.client = client
         self.problem = problem
         self.history = [{"role": "system",
-                         "content": prompt_judger}]
+                         "content": prompt_judger.format(problem = self.problem)}]
         
+    def reset(self):
+        self.history = [{"role": "system",
+                         "content": prompt_judger}]
+
     def judge(self, report):
         self.history.append({"role": "user",
                              "content": report})

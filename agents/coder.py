@@ -47,6 +47,12 @@ class Coder():
         self.policy.update(state, action, reward, next_state)
 
 
+    def reset(self):
+        self.history = [{"role": "system",
+                         "content": prompt_coder.format(problem = self.problem)}]
+        self.code = None
+
+
     def process_data(self):
         self.history.append({"role": "user",
                              "content": prompt_process_data})
