@@ -36,12 +36,11 @@ class Coder():
         self.policy = EpsilonGreedyPolicy(4)
         self.history = [{"role": "system",
                          "content": prompt_coder.format(problem = self.problem)}]
+        self.code = None
 
     def act(self, state):
         action = self.policy.get_action(state)
-        answer = self.actions[action]()
-        
-        return answer
+        self.actions[action]()
     
 
     def update_policy(self, state, action, reward, next_state):
@@ -60,7 +59,7 @@ class Coder():
         self.history.append({"role": "assistant",
                              "content": answer})
         
-        return answer
+        self.code = answer
     
 
     def analyze_data(self):
@@ -75,7 +74,7 @@ class Coder():
         self.history.append({"role": "assistant",
                              "content": answer})
         
-        return answer
+        self.code = answer
     
 
     def visualize_results(self):
@@ -90,7 +89,7 @@ class Coder():
         self.history.append({"role": "assistant",
                              "content": answer})
         
-        return answer
+        self.code = answer
     
 
     def interpret_analysis(self):
@@ -105,4 +104,4 @@ class Coder():
         self.history.append({"role": "assistant",
                              "content": answer})
         
-        return answer
+        self.code = answer

@@ -79,6 +79,7 @@ class CodeReviewer:
         self.report = None
         self.current_state = None
         self.grades = {}
+        self.current_action = None
 
     def _get_llm_response(self, prompt: str, temperature: float = 0.7) -> str:
         """
@@ -248,6 +249,5 @@ class CodeReviewer:
 
     def act(self, state):
         action = self.policy.get_action(state)
-        answer = self.actions[action]()
-        
-        return answer
+        self.current_action = action
+        self.actions[action]()
