@@ -38,9 +38,11 @@ class Coder():
                          "content": prompt_coder.format(problem = self.problem)}]
         self.code = None
         self.state = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        self.current_action = None
 
     def act(self):
         action = self.policy.get_action(self.state)
+        self.current_action = action
         self.actions[action]()
     
 

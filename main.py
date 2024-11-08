@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from groq import Groq
 import pandas as pd
+from environment import Environment
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -28,3 +29,6 @@ judger = Judger(client, prompt_problem.format(data = data))
 
 report_points = 0
 
+env = Environment(coder, reviewer, judger)
+
+env.run_episode()

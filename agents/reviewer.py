@@ -150,11 +150,10 @@ class CodeReviewer:
 
         print(self.grades["grades_llm"])
     
-    def create_report(self, info):
+    def create_report(self):
         """
         Gera um relatório com base no código fornecido e armazena na variável self.report.
         """
-        code = info.get("code", "")
         
         # Construir prompt estruturado para o LLM
         prompt = prompt_create_report.format(code = self.code, ruff_metrics = self.metrics["ruff"], mypy_metrics = self.metrics["mypy"] )
