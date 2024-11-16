@@ -65,7 +65,11 @@ class CodeReviewer:
         
         self.code = "print('Hello World')"
         self.report = None
-        self.grades = {}
+        self.grades = {"grades_llm": (0,0,0,0,0,0,0,0,0,0), 
+                       "ruff": 0, 
+                       "mypy": 0, 
+                       "bandit" : 0, 
+                       "execution_score": 0}
         self.current_action = None
         self.state = (0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
@@ -209,7 +213,7 @@ class CodeReviewer:
 
         return score
 
-    def static_analysis(self, info):
+    def static_analysis(self):
         # Executa as análises de qualidade
         ruff_score = self._analyze_with_ruff(self.code)
         mypy_score = self._analyze_with_mypy(self.code)
