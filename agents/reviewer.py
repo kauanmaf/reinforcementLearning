@@ -64,7 +64,6 @@ class CodeReviewer:
         self.policy = EpsilonGreedyPolicy(n_actions=len(self.actions))
         
         self.code = "print('Hello World')"
-        self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
         self.report = None
         self.grades = {}
         self.current_action = None
@@ -76,7 +75,6 @@ class CodeReviewer:
                     "content": prompt_init_reviewer + self.problem
                 }]
         self.code = None
-        self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
         self.report = None
         self.grades = {"grades_llm": (0,0,0,0,0,0,0,0,0,0), 
                        "ruff": 0, 
@@ -128,7 +126,7 @@ class CodeReviewer:
 
     def review_code(self):
         """
-        Perform a structured code review using Groq with feedback in 10 numbered metrics.
+        Perform a structured code review using Groq with feedback in 10 numbered grades.
         """
         
             
@@ -145,7 +143,7 @@ class CodeReviewer:
         """
         
         # Construir prompt estruturado para o LLM
-        prompt = prompt_create_report.format(code = self.code, ruff_metrics = self.metrics["ruff"], mypy_metrics = self.metrics["mypy"] )
+        prompt = prompt_create_report.format(code = self.code, ruff_metrics = self.grades["ruff"], mypy_metrics = self.grades["mypy"], bandit_metrics = self.grades["bandit"])
 
         # Obter resposta do LLM
         structured_feedback = self._get_llm_response(prompt)
@@ -217,9 +215,9 @@ class CodeReviewer:
         mypy_score = self._analyze_with_mypy(self.code)
         bandit_score = self._analyze_with_bandit(self.code)
 
-        self.grades["ruff_score"] = ruff_score
-        self.grades["mypy_score"] = mypy_score
-        self.grades["bandit_score"] = bandit_score
+        self.metrics["ruff_score"] = ruff_score
+        self.metrics["mypy_score"] = mypy_score
+        self.metrics["bandit_score"] = bandit_score
 
     def execute_and_score_code(self) -> int:
         with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
