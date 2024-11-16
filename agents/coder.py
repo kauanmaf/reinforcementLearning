@@ -61,15 +61,11 @@ class Coder():
     def process_data(self):
         self.history.append({"role": "user",
                              "content": prompt_process_data})
-        print(self.history)
+
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192",
-            response_model = Joker
+            model = "llama3-8b-8192"
         )
-        print(answer)
-        answer = answer.generic_ans
-        print(answer)
 
         self.history.append({"role": "assistant",
                              "content": answer})
@@ -83,9 +79,8 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192",
-            response_model = Joker
-        ).generic_ans
+            model = "llama3-8b-8192"
+        )
 
         self.history.append({"role": "assistant",
                              "content": answer})
@@ -99,9 +94,8 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192",
-            response_model = Joker
-        ).generic_ans
+            model = "llama3-8b-8192"
+        )
 
         self.history.append({"role": "assistant",
                              "content": answer})
@@ -115,9 +109,8 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192",
-            response_model = Joker
-        ).generic_ans
+            model = "llama3-8b-8192"
+        )
 
         self.history.append({"role": "assistant",
                              "content": answer})

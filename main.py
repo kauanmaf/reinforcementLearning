@@ -21,14 +21,14 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-client = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
+client_instructor = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
 
-answer = client.chat.completions.create(
-            messages = "crie um codigo para printar uma arvore de a's",
-            model = "llama3-8b-8192",
-            response_model = ReportReviewer
-        )
-print(answer)
+# answer = client.chat.completions.create(
+#             messages = "crie um codigo para printar uma arvore de a's",
+#             model = "llama3-8b-8192",
+#             response_model = ReportReviewer
+#         )
+# print(answer)
 
 train = pd.read_csv("data/train.csv")
 test = pd.read_csv("data/test.csv")
@@ -37,8 +37,8 @@ sample_submission = pd.read_csv("data/sample_submission.csv")
 data = {"train": train, "sample_submission": sample_submission, "test": test}
 
 coder = Coder(client, prompt_problem.format(data = data))
-reviewer = CodeReviewer(client, prompt_problem.format(data = data))
-judger = Judger(client, prompt_problem.format(data = data))
+reviewer = CodeReviewer(client_instructor, prompt_problem.format(data = data))
+judger = Judger(client_instructor, prompt_problem.format(data = data))
 
 report_points = 0
 

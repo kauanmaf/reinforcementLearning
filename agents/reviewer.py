@@ -117,10 +117,10 @@ class CodeReviewer:
             self.feedback_history.append({"role": "user", "content": prompt})
             self.feedback_history.append({
                 "role": "assistant",
-                "content": completion.choices[0].message.content
+                "content": completion.generic_ans
             })
 
-            return completion.choices[0].message.content
+            return completion.generic_ans if resp_string else completion.grades
 
         except Exception as e:
             print(f"Error getting LLM response: {e}")
@@ -136,9 +136,7 @@ class CodeReviewer:
         prompt = prompt_review_code.format(code = self.code)
 
         # Obtain structured feedback from Groq
-        self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1, resp_string=False).grades
-
-        print(self.grades["grades_llm"])
+        self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1, resp_string=False)
     
     def create_report(self):
         """
@@ -149,7 +147,7 @@ class CodeReviewer:
         prompt = prompt_create_report.format(code = self.code, ruff_metrics = self.metrics["ruff"], mypy_metrics = self.metrics["mypy"] )
 
         # Obter resposta do LLM
-        structured_feedback = self._get_llm_response(prompt).generic_ans
+        structured_feedback = self._get_llm_response(prompt)
 
         # Armazenar o relatório
         self.report = structured_feedback
