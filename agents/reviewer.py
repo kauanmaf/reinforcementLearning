@@ -136,6 +136,7 @@ class CodeReviewer:
         prompt = prompt_review_code.format(code = self.code)
 
         # Obtain structured feedback from Groq
+        print(self._get_llm_response(prompt, temperature=0.1, resp_string=False))
         self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1, resp_string=False)
     
     def create_report(self):

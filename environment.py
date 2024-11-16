@@ -7,7 +7,7 @@ from groq import Groq
 import pandas as pd
 
 class Environment:
-    def __init__(self, coder: Coder, reviewer: CodeReviewer, judger: Judger, threshold = 0.9):
+    def __init__(self, coder: Coder, reviewer: CodeReviewer, judger: Judger, threshold = 135):
         self.coder = coder
         self.reviewer = reviewer
         self.judger = judger
@@ -54,7 +54,7 @@ class Environment:
 
         while not self.done and self.step_count < max_steps:
             # Salvando o estado anterior do reviewer
-            current_reviwer_state = self.reviewer.state
+            current_reviewer_state = self.reviewer.state
             # Fazer com que o reviewer aja:
             self.reviewer.act()
 
@@ -71,11 +71,11 @@ class Environment:
                 next_state = self.reviewer.state
                 score = sum(next_state) - self.step_count
 
-            self.reviewer.update_policy(current_reviwer_state, self.reviewer.action, score, next_state)
+            self.reviewer.update_policy(current_reviewer_state, self.reviewer.current_action, score, next_state)
             self.reviewer.state = next_state
             
             self.step_count += 1
 
-            print("Reviewer: ", self.reviewer.action, score)
+            print("Reviewer: ", self.reviewer.current_action, score)
 
         return total_reward

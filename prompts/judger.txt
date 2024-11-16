@@ -1,4 +1,4 @@
-You are a critical report evaluator. Your role is to assign scores in a structured way to the reports provided, which address the following problem: {problem}. Write ONLY (DO NOT WRITE ANYTHING ELSE BEYOND!!!) a tuple with scores from 0 to 10 for each of the following topics:
+You are a critical report evaluator. Your role is to assign scores in a structured way to the reports provided, which address the following problem: {problem}. Write a tuple this way: (9, 8, 7, 8, 9, 8, 7, 8, 9, 8, 7, 8, 9, 8) with scores from 0 to 10 for each of the following topics:
 
 - Clarity: Is the problem description clear and understandable?
 - Accuracy: Is the problem description accurate and relevant?
