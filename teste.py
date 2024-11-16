@@ -16,18 +16,18 @@ client = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
 # Now, we can use the response_model parameter using only a base model
 # rather than having to use the OpenAISchema class
 class UserExtract(BaseModel):
-    tuple: Tuple[int,int,int,int,int,int,int,int,int,int]
+    code : str 
 
 
 user: UserExtract = client.chat.completions.create(
-    model="mixtral-8x7b-32768",
+    model="llama3-8b-8192",
     response_model=UserExtract,
     messages=[
-        {"role": "user", "content": "Gere uma tupla de 10 inteiros de 0 a 10, Escreve sobre essa tupla e"},
+        {"role": "user", "content": "Gere um código de pyhton para printar hello world"},
     ],
 )
 print(user)
-print(type(user.tuple))
+print(type(user.code))
 assert isinstance(user, UserExtract), "Should be instance of UserExtract"
 # assert user.name.lower() == "jason"
 # assert user.age == 25
