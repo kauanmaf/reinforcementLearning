@@ -1,5 +1,6 @@
 import sys
 import os
+from agents.utils import *
 
 if __name__ == '__main__':
     # Obtém o diretório do arquivo atual
@@ -60,11 +61,15 @@ class Coder():
     def process_data(self):
         self.history.append({"role": "user",
                              "content": prompt_process_data})
-        
+        print(self.history)
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192"
+            model = "llama3-8b-8192",
+            response_model = Joker
         )
+        print(answer)
+        answer = answer.generic_ans
+        print(answer)
 
         self.history.append({"role": "assistant",
                              "content": answer})
@@ -78,8 +83,9 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192"
-        )
+            model = "llama3-8b-8192",
+            response_model = Joker
+        ).generic_ans
 
         self.history.append({"role": "assistant",
                              "content": answer})
@@ -93,8 +99,9 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192"
-        )
+            model = "llama3-8b-8192",
+            response_model = Joker
+        ).generic_ans
 
         self.history.append({"role": "assistant",
                              "content": answer})
@@ -108,8 +115,9 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192"
-        )
+            model = "llama3-8b-8192",
+            response_model = Joker
+        ).generic_ans
 
         self.history.append({"role": "assistant",
                              "content": answer})

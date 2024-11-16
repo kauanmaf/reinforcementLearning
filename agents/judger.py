@@ -1,5 +1,6 @@
 import os
 import sys
+from agents.utils import *
 
 if __name__ == '__main__':
     current_dir = os.path.dirname(__file__)
@@ -26,16 +27,18 @@ class Judger():
     def judge(self, report):
         self.history.append({"role": "user",
                              "content": report})
-        
+        print(self.history)
         answer = self.client.chat.completions.create(
+            reponse_model = ReportJudger, 
             messages = self.history,
             model = "llama3-8b-8192",
             temperature = 0
         )
 
-        self.history.append({"role": "assistant",
-                             "content": answer})
+        # Transformando a answer em apenas um tupla
+        answer = answer.scores
         
-        answer = ast.literal_eval(answer.choices[0].message.content)
+        self.history.append({"role": "assistant",
+                             "content": str(answer)})
         
         return answer

@@ -1,14 +1,17 @@
+import os
 from agents.coder import Coder
 from agents.reviewer import CodeReviewer
 from agents.judger import Judger
 from dotenv import load_dotenv
-import os
 from groq import Groq
 import pandas as pd
 from environment import Environment
+import instructor
+from pydantic import BaseModel
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
 
 with open("prompts/problem_description.txt", "r") as file:
     prompt_problem = file.read()
@@ -16,6 +19,8 @@ with open("prompts/problem_description.txt", "r") as file:
 client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
+
+client = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
 
 train = pd.read_csv("data/train.csv")
 test = pd.read_csv("data/test.csv")

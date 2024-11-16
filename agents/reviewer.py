@@ -26,6 +26,7 @@ import os
 import re
 import subprocess
 import tempfile
+from agents.utils import *
 
 
 from policy import EpsilonGreedyPolicy
@@ -46,19 +47,6 @@ load_dotenv()
 
 SCRIPTS_PATH = os.getenv("SCRIPTS_PATH")
 
-class ReviewAction(Enum):
-    STATIC_ANALYSIS = "static_analysis"
-    EXECUTE_CODE = "execute_code"
-    PROPOSE_REFACTORING = "propose_refactoring"
-    IMPROVE_REPORT = "improve_report"
-
-@dataclass
-class CodeReviewResult:
-    action: ReviewAction
-    feedback: str
-    score: float
-    suggestions: List[str]
-
 class CodeReviewer:
     def __init__(self, client: str, problem, model: str = "llama3-8b-8192"):
         """
@@ -72,8 +60,8 @@ class CodeReviewer:
                     "content": prompt_init_reviewer + problem
                 }]
         # Começamos a política de epsilon greedy
-        self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
         self.actions = [self.create_report, self.execute_and_score_code, self.review_code, self.static_analysis]
+        self.policy = EpsilonGreedyPolicy(n_actions=len(self.actions))
         
         self.code = "print('Hello World')"
         self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
@@ -107,7 +95,7 @@ class CodeReviewer:
                 self.grades["execution_score"])
     
 
-    def _get_llm_response(self, prompt: str, temperature: float = 0.7) -> str:
+    def _get_llm_response(self, prompt: str, temperature: float = 0.7, resp_string = True) -> str:
         """
         Função que pede uma resposta ao llm.
         """
@@ -116,11 +104,13 @@ class CodeReviewer:
             messages = self.feedback_history + [{"role": "user", "content": prompt}]
 
             # Call the Groq client
+
             completion = self.groq_client.chat.completions.create(
                 messages=messages,
                 model=self.model,
                 temperature=temperature,
-                max_tokens=1000
+                max_tokens=1000,
+                response_model = Joker if resp_string else ReportReviewer
             )
 
             # Update feedback history with the user message and assistant response
@@ -146,7 +136,7 @@ class CodeReviewer:
         prompt = prompt_review_code.format(code = self.code)
 
         # Obtain structured feedback from Groq
-        self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1)
+        self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1, resp_string=False).grades
 
         print(self.grades["grades_llm"])
     
@@ -159,12 +149,10 @@ class CodeReviewer:
         prompt = prompt_create_report.format(code = self.code, ruff_metrics = self.metrics["ruff"], mypy_metrics = self.metrics["mypy"] )
 
         # Obter resposta do LLM
-        structured_feedback = self._get_llm_response(prompt)
+        structured_feedback = self._get_llm_response(prompt).generic_ans
 
         # Armazenar o relatório
-        self.report = {
-            "feedback": structured_feedback
-        }
+        self.report = structured_feedback
 
     def _analyze_with_ruff(self) -> int:
         with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:
