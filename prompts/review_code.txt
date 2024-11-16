@@ -15,4 +15,4 @@ Please review the following code based on these 10 metrics, providing feedback f
 ```python
 {code}
 ```
-YOUR OUTPUT SHOULD BE A TUPLE WITH 10 GRADES LIKE THIS (int,int,int,int,int,int,int,int,int,int). JUST THAT!!!.
+YOUR OUTPUT SHOULD BE A TUPLE WITH 10 GRADES LIKE THIS (int,int,int,int,int,int,int,int,int,int). JUST THAT!!!. Please generate text without embedded explanations. Ensure that the entire text is generated without causing a 'tool_use_failed' (400) error.
