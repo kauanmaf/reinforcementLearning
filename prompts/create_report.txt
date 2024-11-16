@@ -1,11 +1,12 @@
-### Code Review Report for the Following Code
+Please generate a review report for the following code:
 
-#### Code:
+Code:
 {code}
 
-#### Evaluation Criteria:
-1. **Code Correctness**: Assess any bugs or errors present in the code.
-2. **Style Quality**: Based on the metrics provided by `ruff`: {ruff_metrics}.
-3. **Type Precision**: Based on the metrics provided by `mypy`: {mypy_metrics}.
-4. **Performance and Efficiency**: Opportunities to improve runtime performance or memory usage.
-5. **Suggestions for Optimization and Best Practices**: Propose enhancements or industry-standard practices.
+1. Evaluation Criteria:
+2. Code correctness (evaluate bugs and errors)
+3. Style quality (based on ruff metrics: {ruff_metrics})
+4. Type accuracy (based on mypy metrics: {mypy_metrics})
+5. Code quality (based on bandit metrics: {bandit_metrics})
+6. Performance and efficiency improvements
+7. Suggestions for optimization and best practices
