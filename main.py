@@ -8,6 +8,7 @@ import pandas as pd
 from environment import Environment
 import instructor
 from pydantic import BaseModel
+from agents.utils import *
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -21,6 +22,13 @@ client = Groq(
 )
 
 client = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
+
+answer = client.chat.completions.create(
+            messages = "crie um codigo para printar uma arvore de a's",
+            model = "llama3-8b-8192",
+            response_model = ReportReviewer
+        )
+print(answer)
 
 train = pd.read_csv("data/train.csv")
 test = pd.read_csv("data/test.csv")

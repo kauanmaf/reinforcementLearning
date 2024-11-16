@@ -1,11 +1,11 @@
-Por favor, gere um relatório de revisão para o seguinte código:
+### Code Review Report for the Following Code
 
-### Código:
+#### Code:
 {code}
 
-### Critérios de Avaliação:
-1. Correção do código (avaliar bugs e erros)
-2. Qualidade de estilo (baseada nas métricas de ruff: {ruff_metrics})
-3. Precisão de tipagem (baseada nas métricas de mypy: {mypy_metrics})
-4. Melhoria de desempenho e eficiência
-5. Sugestões de otimização e melhores práticas
+#### Evaluation Criteria:
+1. **Code Correctness**: Assess any bugs or errors present in the code.
+2. **Style Quality**: Based on the metrics provided by `ruff`: {ruff_metrics}.
+3. **Type Precision**: Based on the metrics provided by `mypy`: {mypy_metrics}.
+4. **Performance and Efficiency**: Opportunities to improve runtime performance or memory usage.
+5. **Suggestions for Optimization and Best Practices**: Propose enhancements or industry-standard practices.
