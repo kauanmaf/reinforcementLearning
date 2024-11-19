@@ -34,10 +34,9 @@ class Judger():
             temperature = 0
         )
 
-        # Transformando a answer em apenas um tupla
-        answer = answer.scores
+        answer = answer.choices[0].message.content
         
         self.history.append({"role": "assistant",
-                             "content": str(answer)})
+                             "content": answer})
         
         return answer
