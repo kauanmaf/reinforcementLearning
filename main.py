@@ -19,12 +19,6 @@ with open("prompts/problem_description.txt", "r") as file:
 client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
-# answer = client.chat.completions.create(
-#             messages = "crie um codigo para printar uma arvore de a's",
-#             model = "gemma-7b-it",
-#             response_model = ReportReviewer
-#         )
-# print(answer)
 
 train = pd.read_csv("data/train.csv")
 test = pd.read_csv("data/test.csv")

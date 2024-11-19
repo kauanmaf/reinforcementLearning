@@ -43,7 +43,7 @@ class Environment:
         """
         Executa uma rodada de aprendizado entre o coder e o reviewer.
         """
-        max_steps = 100
+        max_steps = 50
         self.step_count = 0
 
         # Gerando o primeiro código
@@ -51,7 +51,7 @@ class Environment:
         # Salvando ele no reviewer também
         self.reviewer.code = self.coder.code
 
-        while not self.done and self.step_count < max_steps:
+        while not self.done:
             # Salvando o estado anterior do reviewer
             current_reviewer_state = self.reviewer.state
             # Fazer com que o reviewer aja:
@@ -75,16 +75,22 @@ class Environment:
             
             self.step_count += 1
 
+            if self.step_count > max_steps:
+                self.reviewer.update_policy(current_reviewer_state, self.reviewer.current_action, score - 50, next_state)
+                break
+
+            print("Iteração: ", self.step_count)
             print("Reviewer: ", self.reviewer.current_action, score)
 
-        self.coder.policy.save(filepath="coder")
-        self.reviewer.policy.save(filepath="reviewer")
+        self.coder.policy.save(filepath="models/coder")
+        self.reviewer.policy.save(filepath="models/reviewer")
         return score
     
     def run(self):
         self.step_count = 1000 # Apenas um número alto
         num_iter = 0
         while self.step_count > 5 or num_iter < 15:
+            print("Episódio: ", num_iter + 1)
             reward = self.run_episode()
             print(reward)
             self.reset()
