@@ -38,7 +38,7 @@ judger = Judger(client, prompt_problem.format(data = data))
 
 report_points = 0
 
-reviewer.review_code()
 env = Environment(coder, reviewer, judger)
 
-env.run_episode()
+# env.run_episode()
+env.teste()

@@ -79,3 +79,44 @@ class Environment:
             print("Reviewer: ", self.reviewer.current_action, score)
 
         return total_reward
+    
+    def teste(self):
+        total_reward = 0
+        max_steps = 100
+        self.step_count = 0
+        i = 0
+
+        # Gerando o primeiro código
+        self.coder.act()
+        # Salvando ele no reviewer também
+        self.reviewer.code = self.coder.code
+
+        while not self.done and self.step_count < max_steps:
+            # Salvando o estado anterior do reviewer
+            current_reviewer_state = self.reviewer.state
+            # Fazer com que o reviewer aja:
+            self.reviewer.actions[i%4]()
+            self.reviewer.current_action = i%4
+            i += 1
+
+            # Se a ação do reviewer tiver sido review code
+            if self.reviewer.current_action == 2:
+                # E fazemos com que o coder gere um novo código
+                self._coder_gen_new_code()
+                next_state = self.reviewer.state
+                score = sum(next_state) - self.step_count
+            elif self.reviewer.current_action == 0:
+                next_state, score = self._get_judger_to_analize_report()
+                score -= self.step_count
+            else:
+                next_state = self.reviewer.state
+                score = sum(next_state) - self.step_count
+
+            self.reviewer.update_policy(current_reviewer_state, self.reviewer.current_action, score, next_state)
+            self.reviewer.state = next_state
+            
+            self.step_count += 1
+
+            print("Reviewer: ", self.reviewer.current_action, score)
+
+        return total_reward

@@ -67,7 +67,7 @@ class Coder():
                 messages = self.history,
                 model = "llama3-8b-8192"
             ).choices[0].message.content
-            print(answer)
+            
             self.history.append({"role": "assistant", "content": answer})
 
             self.code = extract_code(answer)
