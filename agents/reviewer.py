@@ -49,7 +49,7 @@ load_dotenv()
 SCRIPTS_PATH = os.getenv("SCRIPTS_PATH")
 
 class CodeReviewer:
-    def __init__(self, client: str, problem, model: str = "llama-3.1-8b-instant"):
+    def __init__(self, client: str, problem, model: str = "gemma-7b-it"):
         """
         Inicializamos o Code reviewer com o groq
         """

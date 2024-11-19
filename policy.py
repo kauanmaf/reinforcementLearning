@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from typing import Dict, Tuple
+import json
 import random
 
 class EpsilonGreedyPolicyApprox:
@@ -63,3 +64,27 @@ class EpsilonGreedyPolicyApprox:
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
         print(f"Updated Q-values: {q_values.detach().numpy()}")
+    
+
+    def save(self, filepath: str):
+        """Salva os pesos do modelo e os parâmetros em arquivos."""
+        torch.save(self.model.state_dict(), filepath + "_model.pth")
+        params = {
+            "epsilon": self.epsilon,
+            "epsilon_decay": self.epsilon_decay,
+            "epsilon_min": self.epsilon_min,
+        }
+        with open(filepath + "_params.json", "w") as f:
+            json.dump(params, f)
+        print(f"Modelo salvo em {filepath}_model.pth e parâmetros em {filepath}_params.json")
+
+    def load(self, filepath: str):
+        """Carrega os pesos do modelo e os parâmetros de arquivos."""
+        self.model.load_state_dict(torch.load(filepath + "_model.pth"))
+        self.model.eval()
+        with open(filepath + "_params.json", "r") as f:
+            params = json.load(f)
+        self.epsilon = params["epsilon"]
+        self.epsilon_decay = params["epsilon_decay"]
+        self.epsilon_min = params["epsilon_min"]
+        print(f"Modelo carregado de {filepath}_model.pth e parâmetros de {filepath}_params.json")
