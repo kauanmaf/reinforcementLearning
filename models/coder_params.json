@@ -1,1 +1,1 @@
-{"epsilon": 0.18551379376366556, "epsilon_decay": 0.995, "epsilon_min": 0.05}
+{"epsilon": 0.2, "epsilon_decay": 0.995, "epsilon_min": 0.05}
