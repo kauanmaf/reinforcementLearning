@@ -1,6 +1,7 @@
 import sys
 import os
 from agents.utils import *
+from agents.parser import *
 
 if __name__ == '__main__':
     # Obtém o diretório do arquivo atual
@@ -57,70 +58,33 @@ class Coder():
         self.code = None
         self.state = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
+    def _get_llm_response(self, prompt: str) -> str:
+        try:
+            self.history.append({"role": "user", "content": prompt})
+
+            # Call the Groq client
+
+            answer = self.client.chat.completions.create(
+                messages = self.history,
+                model = "llama3-8b-8192"
+            ).choices[0].message.content
+            print(answer)
+            self.history.append({"role": "assistant", "content": answer})
+
+            self.code = extract_code(answer)
+
+        except Exception as e:
+            print(f"Error getting LLM response: {e}")
+            return "Unable to get LLM feedback at this time."
 
     def process_data(self):
-        self.history.append({"role": "user",
-                             "content": prompt_process_data})
-
-        answer = self.client.chat.completions.create(
-            messages = self.history,
-            model = "llama3-8b-8192"
-        )
-
-        answer = answer.choices[0].message.content
-
-        self.history.append({"role": "assistant",
-                             "content": answer})
-        
-        self.code = answer
-    
+        self._get_llm_response(prompt_process_data)
 
     def analyze_data(self):
-        self.history.append({"role": "user",
-                             "content": prompt_analyze_data})
-        
-        answer = self.client.chat.completions.create(
-            messages = self.history,
-            model = "llama3-8b-8192"
-        )
-
-        answer = answer.choices[0].message.content
-
-        self.history.append({"role": "assistant",
-                             "content": answer})
-        
-        self.code = answer
-    
+        self._get_llm_response(prompt_analyze_data)
 
     def visualize_results(self):
-        self.history.append({"role": "user",
-                             "content": prompt_visualize_results})
-        
-        answer = self.client.chat.completions.create(
-            messages = self.history,
-            model = "llama3-8b-8192"
-        )
-
-        answer = answer.choices[0].message.content
-
-        self.history.append({"role": "assistant",
-                             "content": answer})
-        
-        self.code = answer
+        self._get_llm_response(prompt_visualize_results)
     
-
     def interpret_analysis(self):
-        self.history.append({"role": "user",
-                             "content": prompt_interpret_analysis})
-        
-        answer = self.client.chat.completions.create(
-            messages = self.history,
-            model = "llama3-8b-8192"
-        )
-
-        answer = answer.choices[0].message.content
-
-        self.history.append({"role": "assistant",
-                             "content": answer})
-        
-        self.code = answer
+        self._get_llm_response(prompt_interpret_analysis)
