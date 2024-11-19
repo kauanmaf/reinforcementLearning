@@ -56,9 +56,13 @@ class CodeReviewer:
         self.groq_client = client
         self.model = model
         self.problem = problem
-        self.feedback_history = [{
+        self.feedback_history_report = [{
                     "role": "system",
-                    "content": prompt_init_reviewer + problem
+                    "content": prompt_init_reviewer + self.problem
+                }]
+        self.feedback_history_grades = [{
+                    "role": "system",
+                    "content": prompt_init_reviewer + self.problem
                 }]
         # Começamos a política de epsilon greedy
         self.actions = [self.create_report, self.execute_and_score_code, self.review_code, self.static_analysis]
@@ -75,7 +79,11 @@ class CodeReviewer:
         self.state = (0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
     def reset(self):
-        self.feedback_history = [{
+        self.feedback_history_report = [{
+                    "role": "system",
+                    "content": prompt_init_reviewer + self.problem
+                }]
+        self.feedback_history_grades = [{
                     "role": "system",
                     "content": prompt_init_reviewer + self.problem
                 }]
@@ -98,32 +106,52 @@ class CodeReviewer:
                 self.grades["execution_score"])
     
 
-    def _get_llm_response(self, prompt: str, temperature: float = 0.7) -> str:
+    def _get_llm_response(self, prompt: str, temperature: float = 0.7, review_code_bool = False) -> str:
         """
         Função que pede uma resposta ao llm.
         """
         try:
-            # Merge feedback history and the new user message
-            messages = self.feedback_history + [{"role": "user", "content": prompt}]
+            if review_code_bool:
+                # Merge feedback history and the new user message
+                messages = self.feedback_history_grades + [{"role": "user", "content": prompt}]
+                # Call the Groq client
 
-            # Call the Groq client
+                completion = self.groq_client.chat.completions.create(
+                    messages=messages,
+                    model=self.model,
+                    temperature=temperature,
+                    max_tokens=1000,
+                )
 
-            completion = self.groq_client.chat.completions.create(
-                messages=messages,
-                model=self.model,
-                temperature=temperature,
-                max_tokens=1000,
-            )
+                # Update feedback history with the user message and assistant response
+                self.feedback_history_grades.append({"role": "user", "content": prompt})
+                self.feedback_history_grades.append({
+                    "role": "assistant",
+                    "content": completion.choices[0].message.content
+                })
 
-            # Update feedback history with the user message and assistant response
-            self.feedback_history.append({"role": "user", "content": prompt})
-            self.feedback_history.append({
-                "role": "assistant",
-                "content": completion.choices[0].message.content
-            })
+                return completion.choices[0].message.content
 
-            return completion.choices[0].message.content
+            else:
+                messages = self.feedback_history_report + [{"role": "user", "content": prompt}]
+                # Call the Groq client
 
+                completion = self.groq_client.chat.completions.create(
+                    messages=messages,
+                    model=self.model,
+                    temperature=temperature,
+                    max_tokens=1000,
+                )
+
+                # Update feedback history with the user message and assistant response
+                self.feedback_history_report.append({"role": "user", "content": prompt})
+                self.feedback_history_report.append({
+                    "role": "assistant",
+                    "content": completion.choices[0].message.content
+                })
+
+                return completion.choices[0].message.content
+            
         except Exception as e:
             print(f"Error getting LLM response: {e}")
             return "Unable to get LLM feedback at this time."
@@ -136,7 +164,7 @@ class CodeReviewer:
         prompt = prompt_review_code.format(code = self.code)
 
         # Obtain structured feedback from Groq
-        response = self._get_llm_response(prompt, temperature=0.1)
+        response = self._get_llm_response(prompt, temperature=0.1, review_code_bool=True)
         grades = parse_tuple(response)
         print(grades)
         self.grades["grades_llm"] = grades
