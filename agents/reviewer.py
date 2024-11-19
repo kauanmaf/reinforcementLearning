@@ -215,13 +215,13 @@ class CodeReviewer:
 
     def static_analysis(self):
         # Executa as análises de qualidade
-        ruff_score = self._analyze_with_ruff(self.code)
-        mypy_score = self._analyze_with_mypy(self.code)
-        bandit_score = self._analyze_with_bandit(self.code)
+        ruff_score = self._analyze_with_ruff()
+        mypy_score = self._analyze_with_mypy()
+        bandit_score = self._analyze_with_bandit()
 
-        self.metrics["ruff_score"] = ruff_score
-        self.metrics["mypy_score"] = mypy_score
-        self.metrics["bandit_score"] = bandit_score
+        self.grades["ruff_score"] = ruff_score
+        self.grades["mypy_score"] = mypy_score
+        self.grades["bandit_score"] = bandit_score
 
     def execute_and_score_code(self) -> int:
         with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:

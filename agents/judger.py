@@ -25,8 +25,10 @@ class Judger():
                          "content": prompt_judger}]
 
     def judge(self, report):
-        self.history.append({"role": "user",
-                             "content": report})
+        self.history = [{"role": "system",
+                         "content": prompt_judger.format(problem = self.problem)},
+                        {"role": "user",
+                         "content": report}]
 
         answer = self.client.chat.completions.create(
             messages = self.history,
@@ -39,6 +41,8 @@ class Judger():
         self.history.append({"role": "assistant",
                              "content": answer})
         
+        print(answer)
+
         answer = parse_tuple(answer)
         
         return answer

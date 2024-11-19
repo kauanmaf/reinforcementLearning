@@ -9,7 +9,7 @@ class EpsilonGreedyPolicy:
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
-        self.q_table: Dict[Tuple, np.ndarray] = {}
+        self.q_table: Dict[Tuple, np.ndarray] = {(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0): np.array([0, 0, 0, 0])}
         
     def get_action(self, state: Tuple) -> int:
         """
@@ -39,3 +39,5 @@ class EpsilonGreedyPolicy:
         
         # Decay epsilon
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+
+        print(self.q_table)

@@ -28,7 +28,7 @@ class Environment:
         self.coder.act()
         self.reviewer.code = self.coder.code
         self.coder.state = next_state
-        print("Coder: ", self.coder.action, score)
+        print("Coder: ", self.coder.current_action, score)
 
     def _get_judger_to_analize_report(self):
         next_state = self.judger.judge(self.reviewer.report)
