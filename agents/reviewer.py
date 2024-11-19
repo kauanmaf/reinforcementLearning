@@ -153,6 +153,7 @@ class CodeReviewer:
         structured_feedback = self._get_llm_response(prompt)
 
         # Armazenar o relatório
+        print("==================================\n", structured_feedback, "\n==================================\n")
         self.report = structured_feedback
 
     def _analyze_with_ruff(self) -> int:

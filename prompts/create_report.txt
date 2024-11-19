@@ -1,12 +1,4 @@
-Please generate a review report for the following code:
+Please generate a analytical report for the following code:
 
 Code:
 {code}
-
-1. Evaluation Criteria:
-2. Code correctness (evaluate bugs and errors)
-3. Style quality (based on ruff metrics: {ruff_metrics})
-4. Type accuracy (based on mypy metrics: {mypy_metrics})
-5. Code quality (based on bandit metrics: {bandit_metrics})
-6. Performance and efficiency improvements
-7. Suggestions for optimization and best practices

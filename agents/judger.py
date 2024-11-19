@@ -31,7 +31,6 @@ class Judger():
                          "content": report}]
 
         answer = None
-        print("====================================", report, "====================================")
 
         while not answer:
             answer = self.client.chat.completions.create(
