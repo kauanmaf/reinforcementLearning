@@ -32,13 +32,17 @@ class Environment:
 
     def _get_judger_to_analize_report(self):
         next_state = self.judger.judge(self.reviewer.report)
+        
+        if next_state == None:
+            return self.reviewer.state, score
+        
         score = sum(next_state)
 
         if score + self.step_count > self.threshold:
             self.done = True
 
         return next_state, score
-    
+
     def run_episode(self):
         """
         Executa uma rodada de aprendizado entre o coder e o reviewer.

@@ -32,16 +32,19 @@ class Judger():
 
         answer = None
 
-        while not answer:
-            answer = self.client.chat.completions.create(
-                messages = self.history,
-                model = "gemma-7b-it",
-                temperature = 0,
-                max_tokens = 65
-            )
+        try:
+            while not answer:
+                answer = self.client.chat.completions.create(
+                    messages = self.history,
+                    model = "gemma-7b-it",
+                    temperature = 0,
+                    max_tokens = 65
+                )
 
-            answer = answer.choices[0].message.content
-            print(answer)
-            answer = parse_tuple(answer)
+                answer = answer.choices[0].message.content
+                answer = parse_tuple(answer)
+
+        except:
+            return None
         
         return answer

@@ -74,7 +74,6 @@ class Coder():
 
         except Exception as e:
             print(f"Error getting LLM response: {e}")
-            return "Unable to get LLM feedback at this time."
 
     def process_data(self):
         self._get_llm_response(prompt_process_data)
