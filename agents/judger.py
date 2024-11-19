@@ -29,7 +29,6 @@ class Judger():
                              "content": report})
 
         answer = self.client.chat.completions.create(
-            response_model = ReportJudger, 
             messages = self.history,
             model = "llama3-8b-8192",
             temperature = 0

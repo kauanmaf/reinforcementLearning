@@ -67,6 +67,8 @@ class Coder():
             model = "llama3-8b-8192"
         )
 
+        answer = answer.choices[0].message.content
+
         self.history.append({"role": "assistant",
                              "content": answer})
         
@@ -81,6 +83,8 @@ class Coder():
             messages = self.history,
             model = "llama3-8b-8192"
         )
+
+        answer = answer.choices[0].message.content
 
         self.history.append({"role": "assistant",
                              "content": answer})
@@ -97,6 +101,8 @@ class Coder():
             model = "llama3-8b-8192"
         )
 
+        answer = answer.choices[0].message.content
+
         self.history.append({"role": "assistant",
                              "content": answer})
         
@@ -111,6 +117,8 @@ class Coder():
             messages = self.history,
             model = "llama3-8b-8192"
         )
+
+        answer = answer.choices[0].message.content
 
         self.history.append({"role": "assistant",
                              "content": answer})
