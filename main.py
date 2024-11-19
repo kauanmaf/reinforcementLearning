@@ -40,4 +40,4 @@ report_points = 0
 
 env = Environment(coder, reviewer, judger)
 
-env.run_episode()
+env.run()
