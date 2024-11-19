@@ -154,7 +154,7 @@ class CodeReviewer:
             
         except Exception as e:
             print(f"Error getting LLM response: {e}")
-            return "Unable to get LLM feedback at this time."
+            return None
 
     def review_code(self):
         """
@@ -165,9 +165,10 @@ class CodeReviewer:
 
         # Obtain structured feedback from Groq
         response = self._get_llm_response(prompt, temperature=0.1, review_code_bool=True)
-        grades = parse_tuple(response)
-        print(grades)
-        self.grades["grades_llm"] = grades
+        if response != None:
+            grades = parse_tuple(response)
+            print(grades)
+            self.grades["grades_llm"] = grades
     
     def create_report(self):
         """
@@ -179,9 +180,10 @@ class CodeReviewer:
 
         # Obter resposta do LLM
         structured_feedback = self._get_llm_response(prompt)
-
-        # Armazenar o relatório
-        self.report = structured_feedback
+        if structured_feedback != None:
+            # Armazenar o relatório
+            self.report = structured_feedback
+        
 
     def _analyze_with_ruff(self) -> int:
         with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as temp_file:

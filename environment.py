@@ -87,11 +87,24 @@ class Environment:
         return score
     
     def run(self):
-        self.step_count = 1000 # Apenas um número alto
+        self.step_count = 1000  # Apenas um número alto
         num_iter = 0
+        results = {"Episódio": [], "Iterações": [], "Score final": []}  # Dicionário para armazenar os resultados
+
         while self.step_count > 5 or num_iter < 15:
             print("Episódio: ", num_iter + 1)
-            reward = self.run_episode()
-            print(reward)
-            self.reset()
-            num_iter +=1
+            reward = self.run_episode()  # Executa o episódio e obtém o score final
+            print("Reward:", reward)
+            
+            # Adiciona os resultados ao dicionário
+            results["Episódio"].append(num_iter + 1)
+            results["Iterações"].append(self.step_count)
+            results["Score final"].append(reward)
+            
+            self.reset()  # Reinicia os estados
+            num_iter += 1
+            # Cria um DataFrame com os resultados
+            df = pd.DataFrame(results)
+            # Salva os resultados em um arquivo CSV
+            df.to_csv("resultados_episodios.csv", index=False)
+            
