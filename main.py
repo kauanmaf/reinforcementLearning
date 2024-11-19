@@ -10,28 +10,31 @@ import instructor
 from pydantic import BaseModel
 
 load_dotenv()
+# Pegamos nossa API_KEY
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-
+# Pegamos a descrição do problema
 with open("prompts/problem_description.txt", "r") as file:
     prompt_problem = file.read()
 
-client = Groq(
-    api_key=os.environ.get("GROQ_API_KEY"),
-)
+# Começamos um cliente
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
+# Lemos os nossos dados do problema
 train = pd.read_csv("data/train.csv")
 test = pd.read_csv("data/test.csv")
 sample_submission = pd.read_csv("data/sample_submission.csv")
 
+# setamos num dicinário
 data = {"train": train, "sample_submission": sample_submission, "test": test}
 
+# Começamos nosso coder, reviewer e judger com o prompt formatado
 coder = Coder(client, prompt_problem.format(data = data))
 reviewer = CodeReviewer(client, prompt_problem.format(data = data))
 judger = Judger(client, prompt_problem.format(data = data))
 
-report_points = 0
-
+# Setamos um environment
 env = Environment(coder, reviewer, judger)
 
+# Rodamos nosso modelo para aprender a política
 env.run()

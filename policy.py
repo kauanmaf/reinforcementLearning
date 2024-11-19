@@ -5,14 +5,19 @@ from typing import Dict, Tuple
 import json
 import random
 
+# Classe para política epsilon-greedy com aproximação por rede neural
 class EpsilonGreedyPolicyApprox:
     def __init__(self, state_dim: int, n_actions: int, epsilon: float = 0.2, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, lr: float = 0.001):
-        self.n_actions = n_actions
+        # Número de ações possíveis
+        self.n_actions = n_actions 
+        # Taxa de exploração inicial 
         self.epsilon = epsilon
+        # Fator de decaimento do epsilon  
         self.epsilon_decay = epsilon_decay
-        self.epsilon_min = epsilon_min
+        # Limite inferior para o epsilon  
+        self.epsilon_min = epsilon_min  
         
-        # Rede neural para aproximar Q(s, a)
+        # Criamos a rede neural para estimar Q(s, a)
         self.model = nn.Sequential(
             nn.Linear(state_dim, 64),
             nn.ReLU(),
@@ -21,53 +26,55 @@ class EpsilonGreedyPolicyApprox:
             nn.Linear(64, n_actions)
         )
         
-        # Otimizador
+        # Iniciamos o otimizador e função de perda
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
         self.loss_fn = nn.MSELoss()
 
+    # Seleciona uma ação baseada na estratégia epsilon-greedy
     def get_action(self, state: Tuple) -> int:
-        """
-        Escolhe uma ação usando a estratégia epsilon-greedy
-        """
-        state_tensor = torch.FloatTensor(state).unsqueeze(0)  # Transforma o estado para um tensor
-        if random.random() < self.epsilon:
+        # Converte estado em tensor
+        state_tensor = torch.FloatTensor(state).unsqueeze(0)  
+        if random.random() < self.epsilon:  # Exploração
             return random.randint(0, self.n_actions - 1)
-        else:
+        
+        # Exploração máxima (baseada nos Q-valores)
+        else:  
             with torch.no_grad():
                 q_values = self.model(state_tensor)
             return torch.argmax(q_values).item()
 
     def update(self, state: Tuple, action: int, reward: float, next_state: Tuple, alpha: float = 0.1, gamma: float = 0.9):
-        """
-        Atualiza os valores Q usando aproximação de função com uma rede neural
-        """
+        # Atualiza Q-valores usando backpropagation
         state_tensor = torch.FloatTensor(state).unsqueeze(0)
         next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0)
 
-        # Obtenha o valor Q(s, a) atual
+        # Obtém o Q(s, a) atual
         q_values = self.model(state_tensor)
         q_value = q_values[0, action]
 
-        # Calcula o valor alvo
+        # Calcula o valor alvo com base no próximo estado
         with torch.no_grad():
             next_q_values = self.model(next_state_tensor)
             next_max_q_value = next_q_values.max().item()
-        target = reward + gamma * next_max_q_value
+        # Fórmula de atualização de Q-alvo
+        target = reward + gamma * next_max_q_value  
 
-        # Calcula a perda e realiza o backpropagation
+        # Calcula a perda
         loss = self.loss_fn(q_value, torch.tensor(target))
+        # Reseta gradientes
         self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+        # Calcula gradientes  
+        loss.backward()  
+        # Atualiza pesos da rede
+        self.optimizer.step()  
 
-        # Decai o epsilon
+        # Reduz o epsilon (exploração decai com o tempo)
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
         print(f"Updated Q-values: {q_values.detach().numpy()}")
-    
 
     def save(self, filepath: str):
-        """Salva os pesos do modelo e os parâmetros em arquivos."""
+        # Salva o modelo e os parâmetros
         torch.save(self.model.state_dict(), filepath + "_model.pth")
         params = {
             "epsilon": self.epsilon,
@@ -79,9 +86,9 @@ class EpsilonGreedyPolicyApprox:
         print(f"Modelo salvo em {filepath}_model.pth e parâmetros em {filepath}_params.json")
 
     def load(self, filepath: str):
-        """Carrega os pesos do modelo e os parâmetros de arquivos."""
+        # Carrega o modelo e os parâmetros
         self.model.load_state_dict(torch.load(filepath + "_model.pth"))
-        self.model.eval()
+        self.model.eval()  # Define o modelo em modo de avaliação
         with open(filepath + "_params.json", "r") as f:
             params = json.load(f)
         self.epsilon = params["epsilon"]
