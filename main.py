@@ -20,9 +20,6 @@ with open("prompts/problem_description.txt", "r") as file:
 client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
-
-client_instructor = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
-
 # answer = client.chat.completions.create(
 #             messages = "crie um codigo para printar uma arvore de a's",
 #             model = "llama3-8b-8192",
@@ -37,11 +34,12 @@ sample_submission = pd.read_csv("data/sample_submission.csv")
 data = {"train": train, "sample_submission": sample_submission, "test": test}
 
 coder = Coder(client, prompt_problem.format(data = data))
-reviewer = CodeReviewer(client_instructor, prompt_problem.format(data = data))
-judger = Judger(client_instructor, prompt_problem.format(data = data))
+reviewer = CodeReviewer(client, prompt_problem.format(data = data))
+judger = Judger(client, prompt_problem.format(data = data))
 
 report_points = 0
 
+reviewer.review_code()
 env = Environment(coder, reviewer, judger)
 
 env.run_episode()
