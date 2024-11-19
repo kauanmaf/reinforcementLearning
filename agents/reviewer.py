@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from enum import Enum
 import numpy as np
 import subprocess
-from policy import EpsilonGreedyPolicy
+from policy import EpsilonGreedyPolicyApprox
 from dotenv import load_dotenv
 import os
 import re
@@ -30,7 +30,7 @@ from parser import *
 
 
 
-from policy import EpsilonGreedyPolicy
+from policy import EpsilonGreedyPolicyApprox
 
 
 with open("prompts/review_code.txt", "r") as file:
@@ -49,7 +49,7 @@ load_dotenv()
 SCRIPTS_PATH = os.getenv("SCRIPTS_PATH")
 
 class CodeReviewer:
-    def __init__(self, client: str, problem, model: str = "llama3-8b-8192"):
+    def __init__(self, client: str, problem, model: str = "llama-3.1-8b-instant"):
         """
         Inicializamos o Code reviewer com o groq
         """
@@ -62,7 +62,7 @@ class CodeReviewer:
                 }]
         # Começamos a política de epsilon greedy
         self.actions = [self.create_report, self.execute_and_score_code, self.review_code, self.static_analysis]
-        self.policy = EpsilonGreedyPolicy(n_actions=len(self.actions))
+        self.policy = EpsilonGreedyPolicyApprox(14, 4)
         
         self.code = "print('Hello World')"
         self.report = None

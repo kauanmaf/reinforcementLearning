@@ -27,7 +27,7 @@ chat_completion = client.chat.completions.create(
             "content": f"Faça uma análise sobre esses dados: {df}",
         }
     ],
-    model="llama3-8b-8192",
+    model="llama-3.1-8b-instant",
 )
 
 print(chat_completion.choices[0].message.content)

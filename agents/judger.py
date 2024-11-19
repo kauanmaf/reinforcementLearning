@@ -30,19 +30,19 @@ class Judger():
                         {"role": "user",
                          "content": report}]
 
-        answer = self.client.chat.completions.create(
-            messages = self.history,
-            model = "llama3-8b-8192",
-            temperature = 0
-        )
+        answer = None
+        print("====================================", report, "====================================")
 
-        answer = answer.choices[0].message.content
-        
-        self.history.append({"role": "assistant",
-                             "content": answer})
-        
-        print(answer)
+        while not answer:
+            answer = self.client.chat.completions.create(
+                messages = self.history,
+                model = "llama-3.1-8b-instant",
+                temperature = 0,
+                max_tokens = 65
+            )
 
-        answer = parse_tuple(answer)
+            answer = answer.choices[0].message.content
+            print(answer)
+            answer = parse_tuple(answer)
         
         return answer

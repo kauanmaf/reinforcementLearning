@@ -21,7 +21,7 @@ client = Groq(
 )
 # answer = client.chat.completions.create(
 #             messages = "crie um codigo para printar uma arvore de a's",
-#             model = "llama3-8b-8192",
+#             model = "llama-3.1-8b-instant",
 #             response_model = ReportReviewer
 #         )
 # print(answer)

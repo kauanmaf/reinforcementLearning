@@ -1,43 +1,65 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from typing import Dict, Tuple
-import numpy as np
 import random
 
-
-class EpsilonGreedyPolicy:
-    def __init__(self, n_actions: int, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.01):
+class EpsilonGreedyPolicyApprox:
+    def __init__(self, state_dim: int, n_actions: int, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.01, lr: float = 0.001):
         self.n_actions = n_actions
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
-        self.q_table: Dict[Tuple, np.ndarray] = {(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0): np.array([0, 0, 0, 0])}
         
+        # Rede neural para aproximar Q(s, a)
+        self.model = nn.Sequential(
+            nn.Linear(state_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, 64),
+            nn.ReLU(),
+            nn.Linear(64, n_actions)
+        )
+        
+        # Otimizador
+        self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
+        self.loss_fn = nn.MSELoss()
+
     def get_action(self, state: Tuple) -> int:
         """
-        Choose action using epsilon-greedy strategy
+        Escolhe uma ação usando a estratégia epsilon-greedy
         """
-        if state not in self.q_table:
-            self.q_table[state] = np.zeros(self.n_actions)
-            
+        state_tensor = torch.FloatTensor(state).unsqueeze(0)  # Transforma o estado para um tensor
         if random.random() < self.epsilon:
             return random.randint(0, self.n_actions - 1)
         else:
-            return np.argmax(self.q_table[state])
-    
+            with torch.no_grad():
+                q_values = self.model(state_tensor)
+            return torch.argmax(q_values).item()
+
     def update(self, state: Tuple, action: int, reward: float, next_state: Tuple, alpha: float = 0.1, gamma: float = 0.9):
         """
-        Update Q-values using Q-learning
+        Atualiza os valores Q usando aproximação de função com uma rede neural
         """
-        if next_state not in self.q_table:
-            self.q_table[next_state] = np.zeros(self.n_actions)
-            
-        old_value = self.q_table[state][action]
-        next_max = np.max(self.q_table[next_state])
-        
-        # Q-learning update
-        new_value = (1 - alpha) * old_value + alpha * (reward + gamma * next_max)
-        self.q_table[state][action] = new_value
-        
-        # Decay epsilon
+        state_tensor = torch.FloatTensor(state).unsqueeze(0)
+        next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0)
+
+        # Obtenha o valor Q(s, a) atual
+        q_values = self.model(state_tensor)
+        q_value = q_values[0, action]
+
+        # Calcula o valor alvo
+        with torch.no_grad():
+            next_q_values = self.model(next_state_tensor)
+            next_max_q_value = next_q_values.max().item()
+        target = reward + gamma * next_max_q_value
+
+        # Calcula a perda e realiza o backpropagation
+        loss = self.loss_fn(q_value, torch.tensor(target))
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        # Decai o epsilon
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
-        print(self.q_table)
+        print(f"Updated Q-values: {q_values.detach().numpy()}")

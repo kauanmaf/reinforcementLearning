@@ -6,7 +6,7 @@ import numpy as np
 import random
 from groq import Groq
 import subprocess
-from policy import EpsilonGreedyPolicy
+from policy import EpsilonGreedyPolicyApprox
 from dotenv import load_dotenv
 import os
 import re
@@ -33,7 +33,7 @@ class CodeReviewResult:
     suggestions: List[str]
 
 class CodeReviewer:
-    def __init__(self, client: str, model: str = "llama3-8b-8192"):
+    def __init__(self, client: str, model: str = "llama-3.1-8b-instant"):
         """
         Inicializamos o Code reviewer com o groq
         """
@@ -44,7 +44,7 @@ class CodeReviewer:
                     "content": "You are an expert code reviewer. Provide specific, actionable feedback."
                 }]
         # Começamos a política de epsilon greedy
-        self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
+        self.policy = EpsilonGreedyPolicyApprox(n_actions=len(ReviewAction))
         self.actions = [self.create_report, self.execute_and_score_code, self.review_code, self.static_analysis]
         
         self.code = "print('Hello World')"

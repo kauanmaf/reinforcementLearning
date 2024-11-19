@@ -1,6 +1,6 @@
 import os
 from groq import Groq
-from policy import EpsilonGreedyPolicy
+from policy import EpsilonGreedyPolicyApprox
 import numpy as np
 import ast
 
@@ -9,7 +9,7 @@ class Coder():
         self.client = client
         self.problem = problem
         self.actions = [self.process_data, self.analyze_data, self.visualize_results, self.interpret_analysis]
-        self.policy = EpsilonGreedyPolicy(4)
+        self.policy = EpsilonGreedyPolicyApprox(14, 4)
         self.history = [{"role": "system",
                          "content": f"You are a Python developer and data scientist. Your role is to write code to solve the following data science problem: {self.problem}. Be concise and make sure to document your code."}]
         
@@ -33,7 +33,7 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192"
+            model = "llama-3.1-8b-instant"
         )
 
         self.history.append({"role": "assistant",
@@ -50,7 +50,7 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192"
+            model = "llama-3.1-8b-instant"
         )
 
         self.history.append({"role": "assistant",
@@ -67,7 +67,7 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192"
+            model = "llama-3.1-8b-instant"
         )
 
         self.history.append({"role": "assistant",
@@ -84,7 +84,7 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192"
+            model = "llama-3.1-8b-instant"
         )
 
         self.history.append({"role": "assistant",
@@ -122,7 +122,7 @@ class Judger():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama3-8b-8192",
+            model = "llama-3.1-8b-instant",
             temperature = 0
         )
 

@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # Opcional: Adiciona o diretório pai do pai ao sys.path para permitir importações
     sys.path.append(parent_dir)
 
-from policy import EpsilonGreedyPolicy
+from policy import EpsilonGreedyPolicyApprox
 
 with open("prompts/coder.txt", "r") as file:
     prompt_coder = file.read()
@@ -34,7 +34,7 @@ class Coder():
         self.client = client
         self.problem = problem
         self.actions = [self.process_data, self.analyze_data, self.visualize_results, self.interpret_analysis]
-        self.policy = EpsilonGreedyPolicy(4)
+        self.policy = EpsilonGreedyPolicyApprox(14, 4)
         self.history = [{"role": "system",
                          "content": prompt_coder.format(problem = self.problem)}]
         self.code = None
@@ -65,7 +65,7 @@ class Coder():
 
             answer = self.client.chat.completions.create(
                 messages = self.history,
-                model = "llama3-8b-8192"
+                model = "llama-3.1-8b-instant"
             ).choices[0].message.content
             
             self.history.append({"role": "assistant", "content": answer})

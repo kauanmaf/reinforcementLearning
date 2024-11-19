@@ -14,4 +14,4 @@ def parse_tuple(response: str) -> tuple:
     if match:
         return tuple(map(int, match.group(1).split(',')))
     else:
-        raise ValueError("No valid tuple found in the response")
+        return None

@@ -5,7 +5,7 @@ import ast
 import numpy as np
 import random
 from groq import Groq
-from policy import EpsilonGreedyPolicy
+from policy import EpsilonGreedyPolicyApprox
 # from instructor import Instructor
 from dotenv import load_dotenv
 import os
@@ -28,7 +28,7 @@ class CodeReviewResult:
     suggestions: List[str]
 
 class CodeReviewer:
-    def __init__(self, client: str, model: str = "llama3-8b-8192"):
+    def __init__(self, client: str, model: str = "llama-3.1-8b-instant"):
         """
         Inicializamos o Code reviewer com o groq
         """
@@ -41,7 +41,7 @@ class CodeReviewer:
         self.report = None
         
         # Começamos a política de epsilon greedy
-        self.policy = EpsilonGreedyPolicy(n_actions=len(ReviewAction))
+        self.policy = EpsilonGreedyPolicyApprox(n_actions=len(ReviewAction))
         self.current_state = (0, 0)
         self.metrics = {"ruff": 0, "mypy": 0, "bandit" : 0}
         # self.instructor = Instructor(client=self.groq_client, create=self.groq_client.chat.completions.create)
