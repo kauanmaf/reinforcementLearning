@@ -21,7 +21,7 @@ client = Groq(
 )
 # answer = client.chat.completions.create(
 #             messages = "crie um codigo para printar uma arvore de a's",
-#             model = "llama-3.1-8b-instant",
+#             model = "gemma-7b-it",
 #             response_model = ReportReviewer
 #         )
 # print(answer)
@@ -40,5 +40,4 @@ report_points = 0
 
 env = Environment(coder, reviewer, judger)
 
-# env.run_episode()
-env.teste()
+env.run_episode()

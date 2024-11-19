@@ -33,7 +33,7 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama-3.1-8b-instant"
+            model = "gemma-7b-it"
         )
 
         self.history.append({"role": "assistant",
@@ -50,7 +50,7 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama-3.1-8b-instant"
+            model = "gemma-7b-it"
         )
 
         self.history.append({"role": "assistant",
@@ -67,7 +67,7 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama-3.1-8b-instant"
+            model = "gemma-7b-it"
         )
 
         self.history.append({"role": "assistant",
@@ -84,7 +84,7 @@ class Coder():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama-3.1-8b-instant"
+            model = "gemma-7b-it"
         )
 
         self.history.append({"role": "assistant",
@@ -122,7 +122,7 @@ class Judger():
         
         answer = self.client.chat.completions.create(
             messages = self.history,
-            model = "llama-3.1-8b-instant",
+            model = "gemma-7b-it",
             temperature = 0
         )
 

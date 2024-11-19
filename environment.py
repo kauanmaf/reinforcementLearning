@@ -14,6 +14,7 @@ class Environment:
         self.done = False
         self.threshold = threshold
         self.step_count = 0
+        self.i = 0
     
     def reset(self):
         self.coder.reset()
@@ -84,7 +85,6 @@ class Environment:
         total_reward = 0
         max_steps = 100
         self.step_count = 0
-        i = 0
 
         # Gerando o primeiro código
         self.coder.act()
@@ -95,9 +95,8 @@ class Environment:
             # Salvando o estado anterior do reviewer
             current_reviewer_state = self.reviewer.state
             # Fazer com que o reviewer aja:
-            self.reviewer.actions[i%4]()
-            self.reviewer.current_action = i%4
-            i += 1
+            self.reviewer.actions[2]()
+            self.reviewer.current_action = 2
 
             # Se a ação do reviewer tiver sido review code
             if self.reviewer.current_action == 2:

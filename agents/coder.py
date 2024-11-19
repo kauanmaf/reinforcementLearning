@@ -65,7 +65,7 @@ class Coder():
 
             answer = self.client.chat.completions.create(
                 messages = self.history,
-                model = "llama-3.1-8b-instant"
+                model = "gemma-7b-it"
             ).choices[0].message.content
             
             self.history.append({"role": "assistant", "content": answer})

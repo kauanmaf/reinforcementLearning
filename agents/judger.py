@@ -35,7 +35,7 @@ class Judger():
         while not answer:
             answer = self.client.chat.completions.create(
                 messages = self.history,
-                model = "llama-3.1-8b-instant",
+                model = "gemma-7b-it",
                 temperature = 0,
                 max_tokens = 65
             )
