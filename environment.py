@@ -7,14 +7,13 @@ from groq import Groq
 import pandas as pd
 
 class Environment:
-    def __init__(self, coder: Coder, reviewer: CodeReviewer, judger: Judger, threshold = 135):
+    def __init__(self, coder: Coder, reviewer: CodeReviewer, judger: Judger, threshold = 130):
         self.coder = coder
         self.reviewer = reviewer
         self.judger = judger
         self.done = False
         self.threshold = threshold
         self.step_count = 0
-        self.i = 0
     
     def reset(self):
         self.coder.reset()
@@ -35,7 +34,7 @@ class Environment:
         next_state = self.judger.judge(self.reviewer.report)
         score = sum(next_state)
 
-        if score > self.threshold:
+        if score + self.step_count > self.threshold:
             self.done = True
 
         return next_state, score
