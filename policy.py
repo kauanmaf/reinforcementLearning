@@ -6,7 +6,7 @@ import json
 import random
 
 class EpsilonGreedyPolicyApprox:
-    def __init__(self, state_dim: int, n_actions: int, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.01, lr: float = 0.001):
+    def __init__(self, state_dim: int, n_actions: int, epsilon: float = 0.2, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, lr: float = 0.001):
         self.n_actions = n_actions
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
