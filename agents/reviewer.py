@@ -97,7 +97,7 @@ class CodeReviewer:
                 self.grades["execution_score"])
     
 
-    def _get_llm_response(self, prompt: str, temperature: float = 0.7, resp_string = True) -> str:
+    def _get_llm_response(self, prompt: str, temperature: float = 0.7) -> str:
         """
         Função que pede uma resposta ao llm.
         """
@@ -112,17 +112,16 @@ class CodeReviewer:
                 model=self.model,
                 temperature=temperature,
                 max_tokens=1000,
-                response_model = Joker if resp_string else ReportReviewer
             )
 
             # Update feedback history with the user message and assistant response
             self.feedback_history.append({"role": "user", "content": prompt})
             self.feedback_history.append({
                 "role": "assistant",
-                "content": completion.generic_ans
+                "content": completion.choices[0].message.content
             })
 
-            return completion.generic_ans if resp_string else completion.grades
+            return completion.choices[0].message.content
 
         except Exception as e:
             print(f"Error getting LLM response: {e}")
@@ -131,15 +130,13 @@ class CodeReviewer:
     def review_code(self):
         """
         Perform a structured code review using Groq with feedback in 10 numbered grades.
-        """
-        
-            
+        """ 
         # Manually create the structured prompt for Groq
         prompt = prompt_review_code.format(code = self.code)
 
         # Obtain structured feedback from Groq
-        print(self._get_llm_response(prompt, temperature=0.1, resp_string=False))
-        self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1, resp_string=False)
+        print(self._get_llm_response(prompt, temperature=0.1))
+        self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1)
     
     def create_report(self):
         """
