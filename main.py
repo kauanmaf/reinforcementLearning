@@ -8,7 +8,6 @@ import pandas as pd
 from environment import Environment
 import instructor
 from pydantic import BaseModel
-from agents.utils import *
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")

@@ -1,6 +1,6 @@
 import os
 import sys
-from agents.utils import *
+from parser import *
 
 if __name__ == '__main__':
     current_dir = os.path.dirname(__file__)
@@ -38,5 +38,7 @@ class Judger():
         
         self.history.append({"role": "assistant",
                              "content": answer})
+        
+        answer = parse_tuple(answer)
         
         return answer

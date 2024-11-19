@@ -26,7 +26,8 @@ import os
 import re
 import subprocess
 import tempfile
-from agents.utils import *
+from parser import *
+
 
 
 from policy import EpsilonGreedyPolicy
@@ -135,8 +136,10 @@ class CodeReviewer:
         prompt = prompt_review_code.format(code = self.code)
 
         # Obtain structured feedback from Groq
-        print(self._get_llm_response(prompt, temperature=0.1))
-        self.grades["grades_llm"] = self._get_llm_response(prompt, temperature=0.1)
+        response = self._get_llm_response(prompt, temperature=0.1)
+        grades = parse_tuple(response)
+        print(grades)
+        self.grades["grades_llm"] = grades
     
     def create_report(self):
         """

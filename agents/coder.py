@@ -1,7 +1,6 @@
 import sys
 import os
-from agents.utils import *
-from agents.parser import *
+from parser import *
 
 if __name__ == '__main__':
     # Obtém o diretório do arquivo atual
