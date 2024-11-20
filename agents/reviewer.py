@@ -39,7 +39,7 @@ SCRIPTS_PATH = os.getenv("SCRIPTS_PATH")
 
 # Criamos a classe de CodeReviewer a qual será usada para avaliar o código
 class CodeReviewer:
-    def __init__(self, client: str, problem, model: str = "gemma-7b-it"):
+    def __init__(self, client: str, problem, model: str = "llama3-8b-8192"):
         # Iniciamos o cliente, o modelo e o problema
         self.groq_client = client
         self.model = model
@@ -70,6 +70,12 @@ class CodeReviewer:
                        "execution_score": 0}
         self.current_action = None
         self.state = (0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+    
+    def __str__(self):
+        if self.current_action is not None:
+            action_names = ["create_report", "execute_and_score_code", "review_code", "static_analysis"]
+            return f"Current action: {action_names[self.current_action]}"
+        return "Current action: None"
 
     # Função para voltar o CodeReviewer para o estado zero, deixando apenas a política aprendida até então
     def reset(self):
@@ -167,7 +173,8 @@ class CodeReviewer:
         if response != None:
             # Pegamos a tupla de notas e adicionamos no grades
             grades = parse_tuple(response)
-            self.grades["grades_llm"] = grades
+            if grades != None:
+                self.grades["grades_llm"] = grades
 
     # Gera um relatório analítico com base no código fornecido e armazena na variável self.report. 
     def create_report(self):

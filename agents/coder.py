@@ -42,6 +42,12 @@ class Coder():
         self.state = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         # Ação tomada nessa rodada
         self.current_action = None
+    
+    def __str__(self):
+        if self.current_action is not None:
+            action_names = ["processando dados", "analizando dados", "visualizando resultados", "análise interpretativa"]
+            return f"Current action: {action_names[self.current_action]}"
+        return "Current action: None"
 
     # Função de ação do agente codador
     def act(self):
@@ -76,7 +82,7 @@ class Coder():
             # Pegando a resposta do LLM
             answer = self.client.chat.completions.create(
                 messages = self.history,
-                model = "gemma-7b-it"
+                model = "llama3-8b-8192"
             ).choices[0].message.content
             
             # Salvando a resposta no histórico

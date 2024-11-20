@@ -43,16 +43,16 @@ class Environment:
         # Atualiza o estado do codador
         self.coder.state = next_state
 
-        print("Coder: ", self.coder.current_action, score)
+        print("Coder: ", self.coder, score)
 
     # Função para chamar o julgador para avaliar o relatório
-    def _get_judger_to_analize_report(self):
+    def _get_judger_to_analize_report(self, last_score):
         # Obtendo o novo estado do revisor com base nas notas do julgador
         next_state = self.judger.judge(self.reviewer.report)
 
         # Se der erro, retorna o estado e a recompensa anterior
         if next_state == None:
-            return self.reviewer.state, score
+            return self.reviewer.state, last_score
         
         # Obtendo a recompensa como a soma das notas
         score = sum(next_state)
@@ -69,6 +69,8 @@ class Environment:
         max_steps = 50
         # Reiniciando a contagem de passos
         self.step_count = 0
+        # score
+        score = 0
 
         # Gerando o primeiro código
         self.coder.act()
@@ -93,7 +95,7 @@ class Environment:
             # Se a ação do revisor tiver sido "create report"...
             elif self.reviewer.current_action == 0:
                 # Faz com que o julgador avalie o novo relatório
-                next_state, score = self._get_judger_to_analize_report()
+                next_state, score = self._get_judger_to_analize_report(score)
                 # Diminui o número de passos da pontuação ponderado
                 score -= 3*self.step_count
             # Se não...
@@ -119,7 +121,7 @@ class Environment:
                 break
 
             print("Iteração: ", self.step_count)
-            print("Reviewer: ", self.reviewer.current_action, score)
+            print("Reviewer: ", self.reviewer, score)
 
         # Salvando os modelos
         self.coder.policy.save(filepath="models/coder")
@@ -129,6 +131,7 @@ class Environment:
     
     # Função para rodar o modelo completo
     def run(self):
+
         # Inicializando o número de passos de um episódio
         self.step_count = 1000
         # Número de episódios
@@ -136,26 +139,30 @@ class Environment:
         # Dicionário para armazenar os resultados
         results = {"Episódio": [], "Iterações": [], "Score final": []}
 
-        # Enquanto o número de passos para encerra o episódio for grande
-        # ou não ultrapassar o máximo de episódios...
-        while self.step_count > 5 or num_iter < 15:
-            print("Episódio: ", num_iter + 1)
+        # Enquanto o número de passos for maior que 5 e o número de episódios for menor que 15
+        while self.step_count > 5 and num_iter < 15:
+            print(f"Episódio: {num_iter + 1}")
 
             # Executa o episódio e obtém o score final
             reward = self.run_episode() 
-            print("Reward:", reward)
-            
+            print(f"Reward: {reward}")
+
             # Adiciona os resultados ao dicionário
-            results["Episódio"].append(num_iter + 1)
-            results["Iterações"].append(self.step_count)
-            results["Score final"].append(reward)
-            
+            results["Episódio"] = [num_iter + 1]
+            results["Iterações"] = [self.step_count]
+            results["Score final"] = [reward]
+
+            # Converte os resultados para um DataFrame
+            df = pd.DataFrame(results)
+
+            # Salva os resultados em um arquivo CSV
+            if not os.path.exists("resultados_episodios.csv"):
+                df.to_csv("resultados_episodios.csv", index=False)
+            else:
+                df.to_csv("resultados_episodios.csv", mode='a', index=False, header=False)
+
             # Reinicia os estados
             self.reset()  
             # Incrementa o número de episódios
             num_iter += 1
-            # Cria um DataFrame com os resultados
-            df = pd.DataFrame(results)
-            # Salva os resultados em um arquivo CSV
-            df.to_csv("resultados_episodios.csv", index=False)
             

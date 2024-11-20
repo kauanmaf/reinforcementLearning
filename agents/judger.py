@@ -40,7 +40,7 @@ class Judger():
                 # Pega a resposta do modelo
                 answer = self.client.chat.completions.create(
                     messages = self.history,
-                    model = "gemma-7b-it",
+                    model = "llama3-8b-8192",
                     temperature = 0,
                     max_tokens = 65
                 )

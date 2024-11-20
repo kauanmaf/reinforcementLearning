@@ -33,7 +33,7 @@ class CodeReviewResult:
     suggestions: List[str]
 
 class CodeReviewer:
-    def __init__(self, client: str, model: str = "gemma-7b-it"):
+    def __init__(self, client: str, model: str = "llama3-8b-8192"):
         """
         Inicializamos o Code reviewer com o groq
         """
