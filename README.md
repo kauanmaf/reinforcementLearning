@@ -17,6 +17,10 @@ Primeiramente, é necessário conferir os valores das duas variáveis de ambient
 
 Após isso, basta executar o arquivo `main.py`.
 
+## **O Problema**
+
+Escolhemos um problema do Kaggle no qual devemos prever o preço final de residências em Ames, Iowa, utilizando um conjunto de dados com 79 variáveis explicativas que detalham diversos aspectos das propriedades. O site do mesmo pode ser encontrado [aqui](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques/overview).
+
 ## **Interação entre os Componentes**
 
 O sistema é dividido em três componentes principais que interagem da seguinte forma:
