@@ -32,7 +32,7 @@ class Coder():
         # Lista das ações do agente
         self.actions = [self.process_data, self.analyze_data, self.visualize_results, self.interpret_analysis]
         # Política do agente como instância da aproximação com epsilon greedy
-        self.policy = EpsilonGreedyPolicyApprox(14, 4)
+        self.policy = EpsilonGreedyPolicyApprox(14, 4, model_path="models/coder_model.pth")
         # Histórico da conversa com o prompt inicial
         self.history = [{"role": "system",
                          "content": prompt_coder.format(problem = self.problem)}]

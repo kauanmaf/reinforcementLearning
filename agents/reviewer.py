@@ -59,7 +59,7 @@ class CodeReviewer:
         
         # Começamos a política de epsilon greedy
         self.actions = [self.create_report, self.execute_and_score_code, self.review_code, self.static_analysis]
-        self.policy = EpsilonGreedyPolicyApprox(14, 4)
+        self.policy = EpsilonGreedyPolicyApprox(14, 4, model_path="models/reviewer_model.pth")
         
         # Começamso nossas variávais para armezenar nossas grades
         self.report = None

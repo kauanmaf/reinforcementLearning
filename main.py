@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 from groq import Groq
 import pandas as pd
 from environment import Environment
-import instructor
-from pydantic import BaseModel
+
 
 load_dotenv()
 # Pegamos nossa API_KEY
