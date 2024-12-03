@@ -83,11 +83,14 @@ class Coder():
             # Adicionando o prompt ao histórico
             self.history.append({"role": "user", "content": prompt})
 
+            print("oi c1")
             # Pegando a resposta do LLM
             answer = self.client.chat.completions.create(
                 messages = self.history,
-                model = "llama3-8b-8192"
+                model = "llama3-70b-8192"
             ).choices[0].message.content
+
+            print("oi c2")
             
             # Salvando a resposta no histórico
             self.history.append({"role": "assistant", "content": answer})
