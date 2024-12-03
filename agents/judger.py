@@ -41,7 +41,7 @@ class Judger():
                 print("oi j1")
                 answer = self.client.chat.completions.create(
                     messages = self.history,
-                    model = "llama3-70b-8192",
+                    model = "llama-3.2-11b-vision-preview",
                     temperature = 0,
                     max_tokens = 65
                 )
