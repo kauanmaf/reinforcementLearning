@@ -59,6 +59,7 @@ class CodeReviewer:
         
         # Começamos a política de epsilon greedy
         self.actions = [self.create_report, self.execute_and_score_code, self.review_code, self.static_analysis]
+        self.action_names = ["create_report", "execute_and_score_code", "review_code", "static_analysis"]
         self.policy = EpsilonGreedyPolicyApprox(14, 4, model_path="models/reviewer_model.pth")
         
         # Começamso nossas variávais para armezenar nossas grades
@@ -73,8 +74,7 @@ class CodeReviewer:
     
     def __str__(self):
         if self.current_action is not None:
-            action_names = ["create_report", "execute_and_score_code", "review_code", "static_analysis"]
-            return f"Current action: {action_names[self.current_action]}"
+            return f"Current action: {self.action_names[self.current_action]}"
         return "Current action: None"
 
     # Função para voltar o CodeReviewer para o estado zero, deixando apenas a política aprendida até então
@@ -110,6 +110,10 @@ class CodeReviewer:
         try:
             # Foi criado um booleno para saber de qual histórico ele tem que pegar o contexto
             if review_code_bool:
+                if len(self.feedback_history_grades) > 4:
+                    del self.feedback_history_grades[1]
+                    del self.feedback_history_grades[2]
+
                 # Adicionamos a message no histórico
                 self.feedback_history_grades.append({"role": "user", "content": prompt})
 
@@ -130,6 +134,9 @@ class CodeReviewer:
                 return completion.choices[0].message.content
 
             else:
+                if len(self.feedback_history_report) > 4:
+                    del self.feedback_history_report[1]
+                    del self.feedback_history_report[2]
                 # Adicionamos a message no histórico
                 self.feedback_history_report.append({"role": "user", "content": prompt})
 

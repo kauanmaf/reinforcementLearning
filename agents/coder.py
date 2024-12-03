@@ -76,6 +76,10 @@ class Coder():
     # Função para obter a resposta do LLM
     def _get_llm_response(self, prompt: str) -> str:
         try:
+            if len(self.history) > 4:
+                del self.history[1]
+                del self.history[2]
+                    
             # Adicionando o prompt ao histórico
             self.history.append({"role": "user", "content": prompt})
 
