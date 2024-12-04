@@ -39,7 +39,7 @@ SCRIPTS_PATH = os.getenv("SCRIPTS_PATH")
 
 # Criamos a classe de CodeReviewer a qual será usada para avaliar o código
 class CodeReviewer:
-    def __init__(self, client: str, problem, model: str = "llama-3.2-11b-vision-preview"):
+    def __init__(self, client: str, problem, model: str = "llama3-8b-8192"):
         # Iniciamos o cliente, o modelo e o problema
         self.groq_client = client
         self.model = model
