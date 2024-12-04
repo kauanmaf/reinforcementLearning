@@ -159,3 +159,6 @@ Esse comportamento foi identificado como um problema recorrente em discussões n
 > *"Ao tentar usar o Instructor para geração de código, o processo sempre resultava em erros fatais que inviabilizavam o fluxo de trabalho."*
 
 Apesar dessas limitações, decidimos seguir com o Groq devido à sua confiabilidade em outras tarefas e pela inexistência de soluções estáveis para os problemas do Instructor no momento. Contudo, esses desafios destacam a importância de otimizações futuras no gerenciamento de contexto e exploração de novas ferramentas que possam mitigar essas dificuldades.
+
+## Link dos slides
+(https://www.canva.com/design/DAGYPhGDp5g/kG3x69YpSJn2gP1fTLZkhg/edit)
