@@ -144,6 +144,10 @@ graph TD
     style S fill:#f9f,stroke:#333,stroke-width:2px,color:#000;
 ```
 
+## **Materiais gerados obtidos**
+
+O código final gerado pelo coder e o relatório gerado pelo reviewer estão salvos na pasta `results`.
+
 ## **Desafios Enfrentados**
 
 Durante o desenvolvimento do sistema, enfrentamos vários desafios técnicos e de implementação. Abaixo estão os principais:
