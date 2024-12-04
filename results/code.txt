@@ -1,0 +1,64 @@
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import LabelEncoder
+from statsmodels.stats.outliers_influence import summary_table
+import statsmodels.api as sm
+
+# Load the data
+train = pd.read_csv('train.csv')
+test = pd.read_csv('test.csv')
+
+# Handle missing values
+train['LotFrontage'].fillna(train['LotFrontage'].median(), inplace=True)
+train['MasVnrArea'].fillna(train['MasVnrArea'].median(), inplace=True)
+test['LotFrontage'].fillna(test['LotFrontage'].median(), inplace=True)
+test['MasVnrArea'].fillna(test['MasVnrArea'].median(), inplace=True)
+
+# Encode categorical variables
+le = LabelEncoder()
+categorical_cols = ['MSSubClass', 'MSZoning', 'Street', 'LandContour', 'Utilities', 'LotConfig', 'LandSlope', 'Neighborhood']
+for col in categorical_cols:
+    train[col] = le.fit_transform(train[col])
+    test[col] = le.transform(test[col])
+
+# Create X and y variables
+X = train.drop(['SalePrice', 'Id'], axis=1)
+y = np.log1p(train['SalePrice'])
+
+# Split the data into training and test sets
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Perform statistical analysis
+X_train_descr = X_train.describe()
+print(X_train_descr)
+
+# Correlation analysis
+corr_matrix = X_train.corr()
+print(corr_matrix)
+
+# Random Forest Regression model
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+y_pred_rf = rf_model.predict(X_val)
+rf_rmse = np.sqrt(mean_squared_error(y_val, y_pred_rf))
+print(f'RMSE of Random Forest Regression model: {rf_rmse:.2f}')
+
+# Linear Regression model
+lr_model = sm.OLS(y_train, X_train).fit()
+print(lr_model.summary())
+
+# Regression diagnostics
+rf_resid = rf_model.predict(X_train) - y_train
+rf_resid, rf_std_resid, rf_ss_resid, rf_ss_total = summary_table(rf_resid, alpha=0.05)
+print('Random Forest Regression diagnostics:')
+print(f'Residual standard error: {rf_std_resid:.2f}')
+print(f'F-statistic: {rf_ss_resid / rf_ss_total:.2f}')
+print(f'p-value: ?')
+
+# Make predictions on the test set
+test_pred = rf_model.predict(test.drop('Id', axis=1))
+submission = pd.DataFrame({'Id': test['Id'], 'SalePrice': np.expm1(test_pred)})
+submission.to_csv('submission.csv', index=False)

@@ -39,7 +39,7 @@ SCRIPTS_PATH = os.getenv("SCRIPTS_PATH")
 
 # Criamos a classe de CodeReviewer a qual será usada para avaliar o código
 class CodeReviewer:
-    def __init__(self, client: str, problem, model: str = "llama3-70b-8192"):
+    def __init__(self, client: str, problem, model: str = "llama3-8b-8192"):
         # Iniciamos o cliente, o modelo e o problema
         self.groq_client = client
         self.model = model
@@ -117,7 +117,6 @@ class CodeReviewer:
                 # Adicionamos a message no histórico
                 self.feedback_history_grades.append({"role": "user", "content": prompt})
 
-                print("oi r1")
                 # Chamamos o groq para um resposta
                 completion = self.groq_client.chat.completions.create(
                     messages=self.feedback_history_grades,
@@ -125,8 +124,6 @@ class CodeReviewer:
                     temperature=temperature,
                     max_tokens=1000,
                 )
-
-                print("oi r2")
 
                 # Coloco então a resposta no histórico
                 self.feedback_history_grades.append({

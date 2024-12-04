@@ -136,5 +136,9 @@ class Environment:
             reward, iter_data = self.run_episode() 
             print(f"Recompensa Final do Episódio {self.num_iter + 1}: {reward}")
             self.save_iteration_data(iter_data, "resultado.csv")
+            with open("results/report.txt", "w", encoding="utf-8") as f:
+                f.write(self.reviewer.report)
+            with open("results/code.txt", "w", encoding="utf-8") as f:
+                f.write(self.coder.code)
             self.reset()
             self.num_iter += 1

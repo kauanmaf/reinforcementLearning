@@ -38,14 +38,12 @@ class Judger():
             # Enquanto não tiver uma resposta adequada do modelo...
             while not answer:
                 # Pega a resposta do modelo
-                print("oi j1")
                 answer = self.client.chat.completions.create(
                     messages = self.history,
-                    model = "llama3-70b-8192",
+                    model = "llama3-8b-8192",
                     temperature = 0,
                     max_tokens = 65
                 )
-                print("oi j2")
                 answer = answer.choices[0].message.content
 
                 # Tenta tirar a tupla de notas da resposta
