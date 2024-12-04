@@ -87,7 +87,7 @@ class Coder():
             # Pegando a resposta do LLM
             answer = self.client.chat.completions.create(
                 messages = self.history,
-                model = "llama3-8b-8192"
+                model = "llama3-70b-8192"
             ).choices[0].message.content
 
             print("oi c2")
