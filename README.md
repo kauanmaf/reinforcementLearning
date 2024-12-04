@@ -116,7 +116,8 @@ graph TD
     L --> M[Update Reviewer Policy]
     M --> N[Update Coder Policy]
     N --> O[Iterate: Next Step in Episode]
-    O --> P{Max Steps Reached?}
+    H --> P
+    O --> P{Max Steps Reached or Score Report > 130?}
     P -- No --> C
     P -- Yes --> Q[End Episode]
     Q --> R[Save Policies]
